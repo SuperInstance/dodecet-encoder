@@ -1,0 +1,31 @@
+[package]
+name = "dodecet-wasm"
+version = "0.1.0"
+edition = "2021"
+authors = ["SuperInstance Team"]
+license = "MIT"
+description = "WebAssembly bindings for dodecet-encoder - 12-bit geometric encoding for browser"
+repository = "https://github.com/SuperInstance/dodecet-encoder"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+web-sys = "0.3"
+
+# Depend on the main dodecet-encoder crate
+dodecet-encoder = { path = "..", features = ["serde"] }
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O4", "--enable-mutable-globals"]

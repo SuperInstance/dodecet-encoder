@@ -1,0 +1,27 @@
+# Ignore everything by default
+*
+
+# But include these files
+!.gitignore
+!LICENSE
+!package.json
+!README.md
+
+# Include build artifacts
+!pkg/
+
+# Exclude test files
+tests/
+*.test.ts
+*.spec.ts
+
+# Exclude source files
+src/
+Cargo.toml
+Cargo.lock
+
+# Exclude development files
+build.sh
+build.bat
+Makefile
+.DS_Store

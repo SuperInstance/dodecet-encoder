@@ -1,0 +1,54 @@
+{
+  "name": "@superinstance/dodecet-encoder",
+  "version": "1.0.0",
+  "description": "12-bit dodecet encoding for geometric operations - WebAssembly library",
+  "keywords": [
+    "dodecet",
+    "12-bit",
+    "encoding",
+    "geometry",
+    "webassembly",
+    "wasm",
+    "3d",
+    "vector",
+    "transformation"
+  ],
+  "author": "SuperInstance Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SuperInstance/dodecet-encoder.git"
+  },
+  "homepage": "https://github.com/SuperInstance/dodecet-encoder#readme",
+  "bugs": {
+    "url": "https://github.com/SuperInstance/dodecet-encoder/issues"
+  },
+  "main": "dodecet_wasm.js",
+  "module": "dodecet_wasm.js",
+  "types": "dodecet_wasm.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dodecet_wasm.js",
+    "dodecet_wasm_bg.wasm",
+    "dodecet_wasm.d.ts",
+    "dodecet_wasm_bg.js",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "wasm-pack build --target web --release",
+    "build:dev": "wasm-pack build --target web",
+    "build:node": "wasm-pack build --target nodejs",
+    "build:bundler": "wasm-pack build --target bundler",
+    "test": "wasm-pack test --node",
+    "test:firefox": "wasm-pack test --firefox",
+    "test:chrome": "wasm-pack test --chrome",
+    "publish:dry": "npm publish --dry-run",
+    "publish:public": "npm publish --access public"
+  },
+  "devDependencies": {
+    "wasm-pack": "^0.12.1"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}
