@@ -2,14 +2,27 @@
 name = "dodecet-encoder"
 version = "1.1.0"
 edition = "2021"
-authors = ["SuperInstance Team"]
-license = "MIT"
+authors = ["SuperInstance Team <team@superinstance.ai>"]
+license = "MIT OR Apache-2.0"
 description = "A 12-bit dodecet encoding system optimized for geometric and calculus operations"
 repository = "https://github.com/SuperInstance/dodecet-encoder"
-keywords = ["encoding", "geometry", "12-bit", "dodecet", "math", "wasm"]
-categories = ["encoding", "mathematics", "data-structures", "wasm"]
+homepage = "https://superinstance.ai"
+documentation = "https://docs.rs/dodecet-encoder"
 readme = "README.md"
-include = ["src/**/*.rs", "Cargo.toml", "README.md", "LICENSE", "CHANGELOG.md"]
+keywords = ["encoding", "geometry", "12-bit", "dodecet", "math", "wasm", "3d", "vector", "calculus"]
+categories = ["encoding", "mathematics", "data-structures", "wasm", "graphics"]
+exclude = [
+    "/.github",
+    "/target",
+    "/wasm/pkg",
+    "/examples",
+    "/tutorials",
+    "/docs",
+    "*.md",
+    "!README.md",
+    "!CHANGELOG.md"
+]
+rust-version = "1.70"
 
 [lib]
 name = "dodecet_encoder"
