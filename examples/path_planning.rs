@@ -20,6 +20,7 @@ impl GridNode {
         GridNode { x, y, z }
     }
 
+    #[allow(dead_code)]
     fn to_point(&self) -> Point3D {
         Point3D::new(self.x, self.y, self.z)
     }
@@ -64,6 +65,7 @@ impl GridNode {
 #[derive(Debug, Clone, Copy)]
 struct AStarNode {
     node: GridNode,
+    #[allow(dead_code)]
     g_cost: u32, // Cost from start
     h_cost: u32, // Heuristic to goal
     f_cost: u32, // Total cost

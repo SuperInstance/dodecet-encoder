@@ -11,6 +11,7 @@ use std::time::{Duration, Instant};
 struct BenchmarkResult {
     name: String,
     iterations: usize,
+    #[allow(dead_code)]
     total_time: Duration,
     avg_time_ns: f64,
     ops_per_second: f64,

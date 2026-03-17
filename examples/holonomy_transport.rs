@@ -120,6 +120,7 @@ impl ManifoldPath {
 }
 
 /// Parallel transporter for holonomy calculations
+#[allow(dead_code)]
 pub struct ParallelTransporter {
     precision_steps: usize,
 }
@@ -155,7 +156,7 @@ impl ParallelTransporter {
 
             let dx = x1 - x0;
             let dy = y1 - y0;
-            let segment_angle = dy.atan2(dx);
+            let _segment_angle = dy.atan2(dx);
 
             // Adjust for curvature (simplified)
             let curvature_adjustment = p0.curvature * 0.1; // Scale factor

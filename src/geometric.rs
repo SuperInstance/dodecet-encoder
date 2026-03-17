@@ -567,9 +567,12 @@ mod tests {
         let point = Point3D::new(0x100, 0x200, 0x300);
         let transformed = transform.apply(&point);
         // Transform might not be perfect due to rounding
-        assert!(transformed.x() >= 0);
-        assert!(transformed.y() >= 0);
-        assert!(transformed.z() >= 0);
+        #[allow(unused_comparisons)]
+        {
+            assert!(transformed.x() >= 0);
+            assert!(transformed.y() >= 0);
+            assert!(transformed.z() >= 0);
+        }
     }
 
     #[test]

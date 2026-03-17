@@ -3,7 +3,7 @@
 // This example demonstrates entropy calculation using dodecet encoding,
 // showing how discrete geometric states provide measurable information theory metrics.
 
-use dodecet_encoder::{Dodecet, DodecetArray, Point3D};
+use dodecet_encoder::{Dodecet, Point3D};
 use std::collections::HashMap;
 
 /// Calculate Shannon entropy of a discrete probability distribution
@@ -29,6 +29,7 @@ fn probability_distribution(dodecets: &[Dodecet]) -> HashMap<u16, f64> {
 }
 
 /// Calculate joint entropy of multiple variables
+#[allow(dead_code)]
 fn joint_entropy(distributions: &[HashMap<u16, f64>]) -> f64 {
     // Approximate joint entropy by assuming independence
     distributions.iter()
@@ -186,7 +187,7 @@ fn main() {
     // 3. Skewed distribution
     println!("\n3. Skewed Distribution:");
     let skewed: Vec<Dodecet> = (0..1000)
-        .flat_map(|i| {
+        .flat_map(|_i| {
             std::iter::repeat(Dodecet::new(0).unwrap())
                 .take(800)
                 .chain(std::iter::repeat(Dodecet::new(1).unwrap()).take(150))

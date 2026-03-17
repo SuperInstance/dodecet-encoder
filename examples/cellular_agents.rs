@@ -62,6 +62,7 @@ impl AgentState {
 }
 
 /// Agent status codes
+#[allow(dead_code)]
 mod status {
     use dodecet_encoder::Dodecet;
     pub const INACTIVE: Dodecet = Dodecet::from_hex(0x000);
@@ -72,6 +73,7 @@ mod status {
 }
 
 /// Equipment types
+#[allow(dead_code)]
 mod equipment {
     use dodecet_encoder::Dodecet;
     pub const NONE: Dodecet = Dodecet::from_hex(0x000);
@@ -118,7 +120,7 @@ fn main() {
     let creation_time = start.elapsed();
 
     let start = std::time::Instant::now();
-    let states: Vec<[Dodecet; 8]> = agents.iter()
+    let _states: Vec<[Dodecet; 8]> = agents.iter()
         .map(|a| a.serialize())
         .collect();
     let serial_time = start.elapsed();

@@ -4,7 +4,7 @@
 //!
 //! Run with: cargo run --example hex_editor
 
-use dodecet_encoder::{Dodecet, DodecetString, hex};
+use dodecet_encoder::{Dodecet, hex};
 
 fn main() {
     println!("=== Dodecet Hex Editor Example ===\n");

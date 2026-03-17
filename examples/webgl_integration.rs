@@ -3,7 +3,6 @@
 // This example demonstrates how to use dodecet encoding for WebGL applications,
 // showing efficient data transfer between Rust and WebGL/JavaScript.
 
-use dodecet_encoder::geometric::Point3D;
 use std::fs::File;
 use std::io::Write;
 

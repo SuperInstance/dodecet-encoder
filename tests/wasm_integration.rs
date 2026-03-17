@@ -94,7 +94,6 @@ mod wasm_integration_tests {
         // After 90-degree rotation around Z-axis
         // The rotation should transform (1,0,0) towards (0,1,0)
         // With dodecet precision, we check approximate result
-        let (tx, ty, tz) = transformed.normalized();
         // Due to dodecet precision and encoding limitations, the rotation
         // may not be mathematically perfect. Just verify the transform works.
         let (tx, ty, tz) = transformed.normalized();
