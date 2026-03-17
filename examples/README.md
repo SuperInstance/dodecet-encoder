@@ -7,12 +7,14 @@ Comprehensive examples demonstrating dodecet encoding integration with constrain
 - [Overview](#overview)
 - [Installation](#installation)
 - [Examples](#examples)
+  - [Basic Examples](#basic-examples)
+  - [Geometric Examples](#geometric-examples)
   - [Constraint Theory Examples](#constraint-theory-examples)
+  - [Advanced Examples](#advanced-examples)
   - [Web Integration](#web-integration)
 - [Building](#building)
 - [Running Examples](#running-examples)
-- [Expected Output](#expected-output)
-- [Integration Guide](#integration-guide)
+- [Tutorials](#tutorials)
 
 ## Overview
 
@@ -23,17 +25,28 @@ These examples demonstrate practical applications of the **dodecet-encoder** lib
 - **Deterministic**: No floating-point drift or rounding errors
 - **Fast**: Integer operations are 2-5x faster than floating-point
 
-### Constraint Theory Integration
+### Example Categories
 
-- **Pythagorean Snapping**: Φ-Folding operator for discrete geometry
-- **Rigidity Matroid**: Laman's Theorem for graph rigidity detection
-- **Holonomy Transport**: Parallel transport on discrete manifolds
+**Basic Examples:**
+- Basic usage and operations
+- Hex editor integration
+- Performance comparisons
 
-### SuperInstance Projects
+**Geometric Examples:**
+- 3D shapes and transformations
+- Vector operations
+- Distance calculations
 
-- **Cellular Agents**: Efficient state encoding for Claw agents
-- **Geometric Logic**: Deterministic reasoning via integer ratios
-- **Memory Optimization**: Reduced memory footprint for large-scale systems
+**Constraint Theory Examples:**
+- Pythagorean Snapping
+- Rigidity Matroid
+- Holonomy Transport
+- Entropy Calculation
+
+**Advanced Examples:**
+- Cellular Agents (Claw agent state)
+- Path Planning (A* algorithm)
+- WebGL Integration (browser visualization)
 
 ## Installation
 
@@ -63,11 +76,84 @@ cargo build --release
 
 ## Examples
 
+### Basic Examples
+
+#### 1. Basic Usage
+
+Introduction to dodecet creation, operations, and conversions.
+
+**Run:**
+```bash
+cargo run --example basic_usage
+```
+
+**Features:**
+- Creating dodecets from hex and decimal
+- Accessing nibbles
+- Arithmetic operations
+- Bitwise operations
+- Conversions (hex, binary, decimal)
+
+#### 2. Hex Editor Integration
+
+Demonstrates hex-friendly encoding for debugging and inspection.
+
+**Run:**
+```bash
+cargo run --example hex_editor
+```
+
+**Features:**
+- Hex encoding/decoding
+- Spaced formatting
+- Hex editor view
+- Validation utilities
+- Byte packing/unpacking
+
+#### 3. Performance Comparison
+
+Comprehensive benchmarks comparing dodecet vs traditional encoding.
+
+**Run:**
+```bash
+cargo run --example performance_comparison
+```
+
+**Features:**
+- Microbenchmarks (creation, arithmetic, distance)
+- Memory comparison (dodecet vs f64)
+- Cache efficiency analysis
+- SIMD potential
+- Real-world use case performance
+
+### Geometric Examples
+
+#### 4. Geometric Shapes
+
+3D geometry with dodecet-encoded points.
+
+**Run:**
+```bash
+cargo run --example geometric_shapes
+```
+
+**Features:**
+- Creating triangles, squares, cubes
+- Calculating areas and volumes
+- Bounding boxes
+- Spatial queries
+- Transformations
+
 ### Constraint Theory Examples
 
-#### 1. Pythagorean Snapping
+#### 5. Pythagorean Snapping
 
-Demonstrates the Φ-Folding Operator that maps continuous vectors to discrete states using Pythagorean triples.
+Φ-Folding Operator for discrete geometry.
+
+**Run:**
+```bash
+cargo run --example pythagorean_snapping
+```
 
 **Key Concepts:**
 - Maps continuous coordinates to discrete Pythagorean triples
@@ -75,21 +161,21 @@ Demonstrates the Φ-Folding Operator that maps continuous vectors to discrete st
 - Creates rigidity matroid for deterministic logic
 - O(n²) → O(log n) geometric rotation
 
-**Run:**
-```bash
-cargo run --example constraint-theory/pythagorean_snapping
-```
-
-**Key Features:**
+**Features:**
 - Snaps points to nearest Pythagorean triple (3-4-5, 5-12-13, etc.)
 - 12-bit precision (4096 states)
 - Calculates snapping error
-- Demonstrates memory efficiency (6 bytes vs 24 bytes)
+- Memory efficiency demonstration
 - Performance benchmarking
 
-#### 2. Rigidity Matroid
+#### 6. Rigidity Matroid
 
-Implements Laman's Theorem for detecting graph rigidity in 2D and 3D structures.
+Laman's Theorem for graph rigidity detection.
+
+**Run:**
+```bash
+cargo run --example rigidity_matroid
+```
 
 **Key Concepts:**
 - Laman's Theorem: Generic rigidity detection
@@ -98,12 +184,7 @@ Implements Laman's Theorem for detecting graph rigidity in 2D and 3D structures.
 - Degrees of freedom calculation
 - Memory-efficient graph encoding
 
-**Run:**
-```bash
-cargo run --example constraint-theory/rigidity_matroid
-```
-
-**Key Features:**
+**Features:**
 - Check if graphs are minimally rigid
 - Calculate degrees of freedom
 - Detect flexible vs rigid structures
@@ -111,9 +192,14 @@ cargo run --example constraint-theory/rigidity_matroid
 - Large-scale structure analysis (100 vertices)
 - Memory usage comparison
 
-#### 3. Holonomy Transport
+#### 7. Holonomy Transport
 
-Demonstrates parallel transport along paths on discrete manifolds using dodecet precision.
+Parallel transport on discrete manifolds.
+
+**Run:**
+```bash
+cargo run --example holonomy_transport
+```
 
 **Key Concepts:**
 - Parallel transport preserves angles along paths
@@ -122,12 +208,7 @@ Demonstrates parallel transport along paths on discrete manifolds using dodecet 
 - Geodesic curvature calculation
 - Geometric closure (truth as closure property)
 
-**Run:**
-```bash
-cargo run --example constraint-theory/holonomy_transport
-```
-
-**Key Features:**
+**Features:**
 - Transport on sphere (positive curvature)
 - Transport on plane (zero curvature)
 - Transport on hyperbolic surface (negative curvature)
@@ -135,22 +216,111 @@ cargo run --example constraint-theory/holonomy_transport
 - Visualize transport process
 - Performance benchmarking
 
+#### 8. Entropy Calculation
+
+Information theory metrics for discrete distributions.
+
+**Run:**
+```bash
+cargo run --example entropy_calculation
+```
+
+**Key Concepts:**
+- Shannon entropy for probability distributions
+- Joint entropy for multiple variables
+- Mutual information and correlation detection
+- Quantization information loss
+- Spatial entropy in 3D point clouds
+
+**Features:**
+- Uniform, binary, and skewed distributions
+- Spatial entropy in point clouds
+- Structured vs random distributions
+- Mutual information (independent vs correlated)
+- Quantization effects
+- Cellular automaton entropy rate
+
+### Advanced Examples
+
+#### 9. Cellular Agents
+
+Efficient state representation for Claw agents.
+
+**Run:**
+```bash
+cargo run --example cellular_agents
+```
+
+**Key Concepts:**
+- Agent state: position, velocity, status, energy
+- Equipment management (6 slots)
+- Memory-efficient serialization (16 bytes vs 48+ bytes)
+- Spatial queries and neighbor detection
+- Deterministic state comparison
+
+**Features:**
+- Create and serialize 1000 agents
+- Batch operations performance
+- Spatial neighbor queries
+- Equipment management
+- Movement simulation
+- Energy consumption tracking
+- Large-scale simulation summary
+
+#### 10. Path Planning
+
+A* pathfinding with dodecet-encoded coordinates.
+
+**Run:**
+```bash
+cargo run --example path_planning
+```
+
+**Key Concepts:**
+- 3D grid navigation with A* algorithm
+- Obstacle avoidance
+- Path smoothing with line-of-sight
+- Multi-waypoint planning
+
+**Features:**
+- Simple straight-line path
+- Environment with obstacles
+- A* pathfinding with BinaryHeap
+- Path smoothing (reduction algorithm)
+- Multi-waypoint paths
+- 3D maze navigation
+- Dynamic obstacle avoidance
+- Performance benchmarking
+- Memory efficiency analysis
+
+#### 11. WebGL Integration
+
+Browser-based visualization using WebGL and JavaScript.
+
+**Run:**
+```bash
+cargo run --example webgl_integration
+```
+
+**Generates:**
+- JavaScript bindings (`dodecet-bindings.js`)
+- TypeScript definitions (`dodecet-bindings.d.ts`)
+- WebGL shaders (vertex/fragment)
+- HTML demo page (`webgl-demo.html`)
+
+**Features:**
+- JavaScript API with Dodecet and Point3D classes
+- WebGL buffer utilities for GPU upload
+- Interactive 3D visualization
+- Point cloud rendering (random, sphere, cube)
+- Real-time rotation and interaction
+- Memory efficiency display (50% savings)
+
 ### Web Integration
 
-#### 4. Web Integration Demo
+#### 12. Web Integration Demo
 
-Interactive HTML/JavaScript demonstration of dodecet encoding for web applications.
-
-**Key Features:**
-- Interactive 3D point encoding
-- Real-time hex conversion
-- Integration examples for:
-  - TypeScript/JavaScript
-  - Web Workers
-  - React components
-  - SuperInstance projects
-- Performance comparison tables
-- Installation instructions
+Interactive HTML/JavaScript demonstration.
 
 **Run:**
 ```bash
@@ -162,13 +332,14 @@ python -m http.server 8000
 # Then visit http://localhost:8000/examples/web_integration.html
 ```
 
-**Key Features:**
-- Interactive point encoding demo
+**Features:**
+- Interactive 3D point encoding
+- Real-time hex conversion
 - Code examples for web integration
-- Constraint theory integration
-- Cellular agent state encoding
-- Performance benchmarks
-- Installation guide
+- TypeScript/JavaScript examples
+- Web Workers examples
+- React component examples
+- Performance comparison tables
 
 ## Building
 
@@ -181,14 +352,14 @@ cargo build --examples
 ### Build Specific Example
 
 ```bash
-cargo build --example constraint-theory/pythagorean_snapping
-cargo build --example constraint-theory/rigidity_matroid
-cargo build --example constraint-theory/holonomy_transport
+cargo build --example basic_usage
+cargo build --example pythagorean_snapping
+cargo build --example cellular_agents
 ```
 
 ### Build for Web
 
-The web integration example is standalone HTML/JavaScript and doesn't require building:
+The web integration example is standalone HTML/JavaScript:
 
 ```bash
 # Just open in browser
@@ -197,13 +368,77 @@ open examples/web_integration.html
 
 ## Running Examples
 
-### Basic Usage Example
+### Basic Examples
 
 ```bash
+# Basic usage
 cargo run --example basic_usage
+
+# Hex editor
+cargo run --example hex_editor
+
+# Performance comparison
+cargo run --example performance_comparison
 ```
 
-Output:
+### Geometric Examples
+
+```bash
+# Geometric shapes
+cargo run --example geometric_shapes
+```
+
+### Constraint Theory Examples
+
+```bash
+# Pythagorean Snapping
+cargo run --example pythagorean_snapping
+
+# Rigidity Matroid
+cargo run --example rigidity_matroid
+
+# Holonomy Transport
+cargo run --example holonomy_transport
+
+# Entropy Calculation
+cargo run --example entropy_calculation
+```
+
+### Advanced Examples
+
+```bash
+# Cellular Agents
+cargo run --example cellular_agents
+
+# Path Planning
+cargo run --example path_planning
+
+# WebGL Integration (generates web files)
+cargo run --example webgl_integration
+```
+
+### Web Integration
+
+```bash
+# Open HTML demo in browser
+open examples/web_integration.html
+```
+
+## Tutorials
+
+For comprehensive learning, see the [tutorials/](../tutorials/) directory:
+
+1. **[Getting Started](../tutorials/00_GETTING_STARTED.md)** - Introduction and setup
+2. **[Basic Operations](../tutorials/01_BASIC_OPERATIONS.md)** - Core operations
+3. **[Geometric Operations](../tutorials/02_GEOMETRIC_OPERATIONS.md)** - 3D geometry
+4. **[Calculus Operations](../tutorials/03_CALCULUS_OPERATIONS.md)** - Numerical methods
+5. **[Integration](../tutorials/04_INTEGRATION.md)** - Web and WASM
+6. **[Advanced Usage](../tutorials/05_ADVANCED_USAGE.md)** - Performance optimization
+
+## Expected Output
+
+### Basic Usage
+
 ```
 === Dodecet Encoder - Basic Usage ===
 
@@ -219,33 +454,6 @@ Output:
 ... (full output)
 ```
 
-### Constraint Theory Examples
-
-```bash
-# Pythagorean Snapping
-cargo run --example constraint-theory/pythagorean_snapping
-
-# Rigidity Matroid
-cargo run --example constraint-theory/rigidity_matroid
-
-# Holonomy Transport
-cargo run --example constraint-theory/holonomy_transport
-```
-
-### Geometric Shapes Example
-
-```bash
-cargo run --example geometric_shapes
-```
-
-### Hex Editor Example
-
-```bash
-cargo run --example hex_editor
-```
-
-## Expected Output
-
 ### Pythagorean Snapping
 
 ```
@@ -259,106 +467,38 @@ Available triples: [(3, 4, 5), (5, 12, 13), (8, 15, 17), ...]
    100200300            100200300              Some((3, 4, 5))   0.000
    500600700            500600700              Some((5, 12, 13)) 45.234
 
-2. Φ-Folding Operator (Continuous → Discrete):
-   (1.0, 2.0, 3.0) → 3E87BB8 → Triple: Some((3, 4, 5))
-
-3. Rigidity Matroid (Deterministic Logic):
-   All points snap to same triple → rigid structure
-
-4. Memory Efficiency:
-   f64 (3D point): 24 bytes
-   Dodecet (3D point): 6 bytes
-   Savings: 75.0%
-
-5. Performance (O(n²) → O(log n) folding):
-   Snapped 10000 points in 45.2ms
-   Average: 4.52 μs/point
-
-6. Constraint Theory Integration:
-   ✓ Φ-Folding: Continuous → Discrete mapping
-   ✓ Rigidity: Deterministic via Pythagorean triples
-   ✓ Precision: 12-bit (4096 states) for geometric closure
-   ✓ Efficiency: O(log n) vs O(n²) for naive rotation
+... (full output)
 ```
 
-### Rigidity Matroid
+### Cellular Agents
 
 ```
-=== Rigidity Matroid Detection with Dodecet Encoder ===
+=== Cellular Agents with Dodecet Encoding ===
 
-1. Triangle (2D Minimally Rigid):
-   Vertices: 3
-   Edges: 3
-   Status: Minimally Rigid (Isostatic)
-   DOF: 0
-   Density: 1.00
+1. Creating Agent States:
+   Agent 1: Point3D { x: 256, y: 512, z: 768 }
+   Agent 2: Point3D { x: 1024, y: 1280, z: 1536 }
+   Agent 3: Point3D { x: 1792, y: 2048, z: 2304 }
 
-2. Square (2D Flexible):
-   Vertices: 4
-   Edges: 4
-   Status: Flexible (Under-constrained)
-   DOF: 1
-   Note: Square can flex → needs diagonal brace
+2. Serialization:
+   Agent 1 serialized: 100200300001FFF000000000000000000000000000000
+   Size: 16 bytes (8 dodecets)
 
-3. Braced Square (2D Rigid):
-   Vertices: 4
-   Edges: 5
-   Status: Rigid (Over-constrained)
-   DOF: 0
+3. Memory Efficiency:
+   Dodecet encoding: 16 bytes
+   Traditional struct: 72 bytes
+   Savings: 77.8%
 
-4. Tetrahedron (3D Minimally Rigid):
-   Vertices: 4
-   Edges: 6
-   Status: Minimally Rigid (Isostatic)
-   DOF: 0
-
-5. Memory Efficiency (Dodecet vs f64):
-   Standard Graph (f64):
-     - Vertex: 6 bytes
-     - Edge: 16 bytes
-     - Triangle: 66 bytes
-
-   Compact Graph (Dodecet):
-     - Vertex: 6 bytes
-     - Edge: 4 bytes
-     - Triangle: 30 bytes
-     - Savings: 54.5%
+... (full output)
 ```
 
-### Holonomy Transport
+## Performance Tips
 
-```
-=== Discrete Holonomy Transport with Dodecet Encoder ===
-
-1. Holonomy on Sphere (Positive Curvature):
-   Path: Circle on sphere (radius: 2048)
-   Points: 9
-   Closed: true
-   Length: 12345.67
-   Holonomy Angle: 0.785 rad (45.0°)
-   Expected: Non-zero due to positive curvature
-
-2. Holonomy on Plane (Zero Curvature):
-   Path: Square on plane (size: 1024)
-   Points: 17
-   Closed: true
-   Length: 4096.00
-   Holonomy Angle: 0.000 rad (0.0°)
-   Expected: ~0 due to flat surface
-
-3. Holonomy on Hyperbolic Surface (Negative Curvature):
-   Path: Path on hyperbolic surface
-   Points: 9
-   Length: 5678.90
-   Holonomy Angle: -0.524 rad (-30.0°)
-   Expected: Negative angle due to negative curvature
-
-5. Precision Advantages:
-   Dodecet precision: 12 bits (4096 states)
-   Quantized angles: 0.088°
-   Memory efficient: 6 bytes vs 24 bytes per point
-   Deterministic: No floating-point drift
-```
+1. **Use Dodecet Arrays** for batch operations
+2. **Pre-allocate** arrays when size is known
+3. **Use references** to avoid copies
+4. **Leverage integer math** for performance
+5. **Consider 12-bit precision** sufficient for discrete geometry
 
 ## Integration Guide
 
@@ -390,27 +530,19 @@ let distance = point.distance_to(&other);
 
 ### In Web Applications
 
-**Option 1: Standalone HTML**
-- Use `examples/web_integration.html` as reference
-- Copy the `DodecetPoint3D` class implementation
-- Integrate into your web application
+**JavaScript Usage:**
+```javascript
+// Import generated bindings
+import { Dodecet, Point3D } from './dodecet-bindings.js';
 
-**Option 2: WASM Bindings (Coming Soon)**
-```bash
-# Build WASM package
-cargo build --target wasm32-unknown-unknown --release
-wasm-pack build --target web
+// Create a point
+const point = new Point3D(0x100, 0x200, 0x300);
+console.log('Hex:', point.toHexString()); // "100200300"
 
-# Install npm package (when published)
-npm install @superinstance/dodecet-encoder
-```
-
-**Option 3: TypeScript Integration**
-```typescript
-import { DodecetPoint3D } from '@superinstance/dodecet-encoder';
-
-const point = new DodecetPoint3D(1000, 2000, 3000);
-console.log('Hex:', point.toHex());
+// Use with WebGL
+const buffer = new DodecetWebGLBuffer(gl);
+buffer.fromPoints([point1, point2, point3]);
+buffer.bind(positionLocation);
 ```
 
 ### For Constraint Theory
@@ -457,14 +589,6 @@ let snapped = snapper.snap(&point);
 // Always snaps to same triple → deterministic reasoning
 ```
 
-## Performance Tips
-
-1. **Use Dodecet Arrays** for batch operations
-2. **Pre-allocate** arrays when size is known
-3. **Use references** to avoid copies
-4. **Leverage integer math** for performance
-5. **Consider 12-bit precision** sufficient for discrete geometry
-
 ## Troubleshooting
 
 ### Build Errors
@@ -487,10 +611,11 @@ let snapped = snapper.snap(&point);
 
 Contributions are welcome! Please:
 
-1. Fork the repository
-2. Create a feature branch
-3. Add your example
-4. Submit a pull request
+1. Read [CONTRIBUTING.md](../.github/CONTRIBUTING.md)
+2. Fork the repository
+3. Create a feature branch
+4. Add your example
+5. Submit a pull request
 
 ## License
 
@@ -500,6 +625,7 @@ MIT License - See LICENSE file for details
 
 - [GitHub Repository](https://github.com/SuperInstance/dodecet-encoder)
 - [Documentation](https://docs.rs/dodecet-encoder)
+- [Tutorials](../tutorials/)
 - [Constraint Theory](https://github.com/SuperInstance/constrainttheory)
 - [SuperInstance Papers](https://github.com/SuperInstance/SuperInstance-papers)
 
@@ -507,11 +633,12 @@ MIT License - See LICENSE file for details
 
 For questions or issues:
 - Open an issue on GitHub
-- Check the documentation
-- Review the examples
+- Check the [documentation](https://docs.rs/dodecet-encoder)
+- Review the [tutorials](../tutorials/)
 
 ---
 
 **Last Updated:** 2026-03-16
 **Version:** 0.1.0
+**Total Examples:** 12
 **Status:** Active Development
