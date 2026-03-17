@@ -1,76 +1,106 @@
 # Dodecet Encoder
 
-**A revolutionary 12-bit dodecet encoding system optimized for geometric and calculus operations.**
+**A 12-bit encoding system for geometric and calculus operations.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Rust](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
-[![codecov](https://codecov.io/gh/SuperInstance/dodecet-encoder/branch/main/graph/badge.svg)](https://codecov.io/gh/SuperInstance/dodecet-encoder)
-
-## Overview
-
-The **dodecet-encoder** replaces traditional 8-bit bytes with a **12-bit dodecet unit** composed of **3 sets of 4-bit encoding**. This innovative approach provides:
-
-- **Hex-editor friendly**: Each dodecet = 3 hex digits (e.g., `0xABC`)
-- **Geometric optimization**: Perfect for 3D coordinates, vectors, transformations
-- **Higher resolution**: 4096 values vs 256 for 8-bit
-- **Calculus-friendly**: Natural alignment for derivatives and integrals
-- **Performance**: SIMD-optimized operations in Rust
 
 ## What is a Dodecet?
 
-A **dodecet** is a 12-bit unit composed of 3 nibbles (4-bit groups):
+A **dodecet** is a 12-bit unit (4,096 possible values) designed as an alternative building block for specific computational domains. The name comes from "dozen" (12) + "octet" (8 bits).
 
 ```
-┌─────────────────────────────────────────┐
-│           DODECET (12 bits)             │
-├─────────────────────────────────────────┤
-│  Nibble 2  │  Nibble 1  │  Nibble 0    │
-│  (4 bits)  │  (4 bits)  │  (4 bits)    │
-│  [11:8]    │  [7:4]     │  [3:0]       │
-├─────────────────────────────────────────┤
-│  Example:   0xA        0xB        0xC  │
-│  Hex: 0xABC = 1010 1011 1100 (binary)  │
-│  Decimal: 2748                             │
-└─────────────────────────────────────────┘
++---------------------------------------------------+
+|                    DODECET (12 bits)              |
++---------------------------------------------------+
+|  Bits 11-8  |  Bits 7-4   |  Bits 3-0   |  Storage |
+|  Nibble 2   |  Nibble 1   |  Nibble 0   |  (u16)   |
++-------------+-------------+-------------+----------+
+|    0xA      |    0xB      |    0xC      |   0x0ABC |
++-------------+-------------+-------------+----------+
 ```
 
-## Why 12 Bits?
+### Key Property: Hex-Editor Friendly
 
-### Geometric Advantages
+Each dodecet maps to exactly **3 hexadecimal digits**:
+- `0x000` to `0xFFF` (0 to 4095 in decimal)
+- Easy visual inspection in hex editors
+- Simple string encoding/decoding
 
-12 bits provide **4096 distinct values** (vs 256 for 8-bit), enabling:
+```rust
+use dodecet_encoder::Dodecet;
 
-- **3D Coordinates**: One dodecet per axis (x, y, z) with sub-millimeter precision
-- **Vector Math**: Sufficient resolution for geometric calculations
-- **Transformations**: Compact matrix representations
-- **Shape Encoding**: Vertices, edges, faces efficiently stored
-
-### Calculus Optimization
-
-- **Derivatives**: Natural step sizes for finite differences
-- **Integrals**: Fine-grained numerical integration
-- **Taylor Series**: Efficient coefficient encoding
-- **Differential Equations**: Compact ODE solvers
-
-### Storage Efficiency
-
+let d = Dodecet::from_hex(0xABC);
+assert_eq!(d.to_hex_string(), "ABC");  // Exactly 3 hex chars
 ```
-8-bit byte:    256 values  =  8 bits
-12-bit dodecet: 4096 values = 12 bits
 
-Efficiency: 4096 values / 12 bits = 341.3 values/bit
-vs:         256 values  / 8 bits  = 32.0 values/bit
+## When to Use Dodecets
 
-8.3x more efficient per bit!
+### Good Use Cases
+
+| Use Case | Why Dodecets Help |
+|----------|-------------------|
+| **3D Geometry** | One dodecet per axis (x,y,z) = compact coordinate storage |
+| **Function Lookup Tables** | 4,096 values often sufficient for smooth interpolation |
+| **Memory-Constrained Systems** | 2 bytes vs 8 bytes for f64 (75% savings) |
+| **Network Transmission** | Compact hex representation, easy debugging |
+| **Embedded/Edge Computing** | Predictable memory footprint |
+
+### When to Avoid Dodecets
+
+| Situation | Why Not Suitable |
+|-----------|------------------|
+| **High-Precision Calculations** | Only 12 bits vs f64's 53-bit mantissa |
+| **Large Dynamic Range** | Range is 0-4095 vs f64's ~10^308 |
+| **General-Purpose Computing** | Standard types (f32, f64, i32) have better tooling |
+| **Scientific Simulations** | Accumulated quantization errors |
+| **Financial Applications** | Precision requirements exceed 12 bits |
+
+**Bottom Line**: Dodecets are a **domain-specific optimization**, not a general-purpose replacement for standard numeric types.
+
+---
+
+## Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Core Types"
+        D[Dodecet<br/>12-bit value]
+        DA[DodecetArray&lt;N&gt;<br/>Fixed-size stack array]
+        DS[DodecetString<br/>Heap-allocated vector]
+    end
+
+    subgraph "Geometric Types"
+        P3[Point3D<br/>3 Dodecets]
+        V3[Vector3D<br/>3 Dodecets]
+        T3[Transform3D<br/>12 Dodecets]
+    end
+
+    subgraph "Operations"
+        HEX[Hex Encoding<br/>3 chars per dodecet]
+        BYTE[Byte Packing<br/>2 dodecets = 3 bytes]
+        CALC[Calculus<br/>Derivatives, Integrals]
+    end
+
+    D --> DA
+    D --> DS
+    D --> P3
+    D --> V3
+    P3 --> T3
+    V3 --> T3
+    D --> HEX
+    DS --> BYTE
+    V3 --> CALC
 ```
+
+---
 
 ## Quick Start
 
 ### Installation
 
-Add to your `Cargo.toml`:
-
 ```toml
+# Cargo.toml
 [dependencies]
 dodecet-encoder = "0.1"
 ```
@@ -78,57 +108,46 @@ dodecet-encoder = "0.1"
 ### Basic Usage
 
 ```rust
-use dodecet_encoder::{Dodecet, DodecetArray};
+use dodecet_encoder::{Dodecet, DodecetArray, DodecetString};
+use dodecet_encoder::geometric::{Point3D, Vector3D};
 
-// Create a dodecet from hex
+// Create a dodecet
 let d = Dodecet::from_hex(0xABC);
+println!("Hex: {}", d.to_hex_string());  // "ABC"
+println!("Decimal: {}", d.value());       // 2748
 
-// Access nibbles
-assert_eq!(d.nibble(0).unwrap(), 0xC);
-assert_eq!(d.nibble(1).unwrap(), 0xB);
-assert_eq!(d.nibble(2).unwrap(), 0xA);
+// Access nibbles (4-bit groups)
+assert_eq!(d.nibble(0).unwrap(), 0xC);  // Bits 3-0
+assert_eq!(d.nibble(1).unwrap(), 0xB);  // Bits 7-4
+assert_eq!(d.nibble(2).unwrap(), 0xA);  // Bits 11-8
 
-// Arithmetic operations
-let d2 = Dodecet::from_hex(0x123);
-let sum = d + d2;
-
-// Geometric encoding: 3D point
-use dodecet_encoder::geometric::Point3D;
-let point = Point3D::new(0x123, 0x456, 0x789);
+// 3D Point (3 dodecets = 6 bytes)
+let point = Point3D::new(0x100, 0x200, 0x300);
+let distance = point.distance_to(&Point3D::new(0, 0, 0));
 ```
 
-## Core Features
+---
 
-### 1. Dodecet Type
+## Core Concepts
+
+### 1. The Dodecet Type
 
 ```rust
 use dodecet_encoder::Dodecet;
 
-// Creation
-let d = Dodecet::new(0xABC).unwrap();
-let d2 = Dodecet::from_hex(0x123);
-
-// Nibble access
-let n0 = d.nibble(0)?; // Least significant nibble
-let n1 = d.nibble(1)?;
-let n2 = d.nibble(2)?; // Most significant nibble
-
-// Bitwise operations
-let and = d & d2;
-let or = d | d2;
-let xor = d ^ d2;
-let not = !d;
-
-// Arithmetic
-let sum = d + d2;
-let diff = d - d2;
-let product = d * d2;
+// Creation methods
+let d1 = Dodecet::from_hex(0x123);           // From hex value
+let d2 = Dodecet::new(1000).unwrap();        // Checked (returns error if >4095)
+let d3 = Dodecet::from_hex_str("ABC").unwrap(); // From string
 
 // Conversions
-let hex_str = d.to_hex_string();     // "ABC"
-let bin_str = d.to_binary_string();  // "101010111100"
-let signed = d.as_signed();          // As i16 (-2048 to 2047)
-let normalized = d.normalize();      // f64 in [0.0, 1.0]
+let normalized: f64 = d1.normalize();  // 0.0 to 1.0
+let signed: i16 = d1.as_signed();      // -2048 to 2047
+
+// Operations
+let sum = d1.wrapping_add(d2);         // Wraps at 4096
+let diff = d1.wrapping_sub(d2);
+let product = d1.wrapping_mul(d2);
 ```
 
 ### 2. Arrays and Strings
@@ -136,24 +155,19 @@ let normalized = d.normalize();      // f64 in [0.0, 1.0]
 ```rust
 use dodecet_encoder::{DodecetArray, DodecetString};
 
-// Fixed-size array
-let arr = DodecetArray::<3>::from_slice(&[0x123, 0x456, 0x789]);
-let sum = arr.sum();
-let avg = arr.average();
+// Fixed-size array (stack allocated)
+let arr = DodecetArray::<3>::from_slice(&[0x100, 0x200, 0x300]);
+assert_eq!(arr.sum().value(), 0x600);
 
-// Growable string
+// Growable string (heap allocated)
 let mut s = DodecetString::new();
 s.push(0x123);
 s.push(0x456);
-s.push(0x789);
+assert_eq!(s.to_hex_string(), "123456");
 
-// Hex encoding/decoding
-let hex = s.to_hex_string();  // "123456789"
-let s2 = DodecetString::from_hex_str("123456789")?;
-
-// Byte packing (2 dodecets = 3 bytes)
+// Byte packing: 2 dodecets = 3 bytes
 let bytes = s.to_bytes();
-let unpacked = DodecetString::from_bytes(&bytes)?;
+let restored = DodecetString::from_bytes(&bytes).unwrap();
 ```
 
 ### 3. Geometric Operations
@@ -161,279 +175,255 @@ let unpacked = DodecetString::from_bytes(&bytes)?;
 ```rust
 use dodecet_encoder::geometric::{Point3D, Vector3D, Transform3D};
 
-// 3D Points
-let p1 = Point3D::new(0x100, 0x200, 0x300);
-let p2 = Point3D::new(0x400, 0x500, 0x600);
-let dist = p1.distance_to(&p2);
+// 3D points
+let p1 = Point3D::new(100, 200, 300);
+let p2 = Point3D::new(400, 500, 600);
+let dist = p1.distance_to(&p2);  // Euclidean distance
 
-// 3D Vectors
+// Vector math
 let v1 = Vector3D::new(100, 200, 300);
 let v2 = Vector3D::new(400, 500, 600);
-
-let dot = v1.dot(&v2);
-let cross = v1.cross(&v2);
-let mag = v1.magnitude();
+let dot = v1.dot(&v2);           // Dot product
+let cross = v1.cross(&v2);       // Cross product
+let mag = v1.magnitude();        // Magnitude
 
 // Transformations
 let translate = Transform3D::translation(100, 200, 300);
 let scale = Transform3D::scale(2.0, 2.0, 2.0);
 let rotate = Transform3D::rotation_z(90.0);
-
 let transformed = translate.apply(&p1);
 ```
 
-### 4. Calculus Operations
+---
+
+## Memory Layout
+
+```mermaid
+graph LR
+    subgraph "Storage Efficiency"
+        DODECET[Dodecet<br/>2 bytes<br/>12-bit data + 4 unused]
+        F64[f64<br/>8 bytes<br/>53-bit mantissa]
+    end
+
+    subgraph "Point3D Comparison"
+        P3_DODECET[3 Dodecets<br/>6 bytes total]
+        P3_F64[3 x f64<br/>24 bytes total]
+    end
+
+    DODECET --> |"75% smaller"| P3_DODECET
+    F64 --> P3_F64
+
+    style DODECET fill:#90EE90
+    style P3_DODECET fill:#90EE90
+```
+
+### Trade-off Analysis
+
+| Metric | Dodecet | f64 | Winner |
+|--------|---------|-----|--------|
+| Storage | 2 bytes | 8 bytes | Dodecet (4x) |
+| Range | 0-4095 | +/-1.8e308 | f64 |
+| Precision | 12 bits | 53 bits | f64 |
+| Operations | Integer ops | FPU ops | Context-dependent |
+| Memory bandwidth | Lower | Higher | Dodecet |
+
+---
+
+## Calculus Support
+
+The library includes numerical methods for calculus operations:
 
 ```rust
 use dodecet_encoder::calculus;
 
-// Derivatives
+// Numerical derivative (finite differences)
 let f = |x: f64| x * x;
 let deriv = calculus::derivative(&f, 2.0, 0.01);
-// f'(2) ≈ 4.0
+// f'(2) = 4.0, computed ~= 4.0
 
-// Integrals
+// Numerical integral (trapezoidal rule)
 let integral = calculus::integral(&f, 0.0, 2.0, 1000);
-// ∫x²dx from 0 to 2 ≈ 2.667
+// Integral of x^2 from 0 to 2 = 8/3 ~= 2.667
 
-// Function encoding
-let table = calculus::encode_function(&|x| x.sin(), 0.0, 2.0*std::f64::consts::PI, 360);
-let y = calculus::decode_function(&table, 0.0, 2.0*std::f64::consts::PI, std::f64::consts::PI/2.0);
-
-// Gradient descent
-let obj = |p: &[f64]| (p[0] - 1.0).powi(2) + (p[1] - 2.0).powi(2);
-let grad = |p: &[f64]| vec![2.0 * (p[0] - 1.0), 2.0 * (p[1] - 2.0)];
-let result = calculus::gradient_descent(&obj, &grad, &[0.0, 0.0], 0.1, 100);
+// Function encoding for fast lookup
+let table = calculus::encode_function(
+    &|x| x.sin(),
+    0.0,
+    std::f64::consts::TAU,
+    360
+);
+let y = calculus::decode_function(&table, 0.0, std::f64::consts::TAU, 1.57);
+// sin(pi/2) ~= 1.0
 ```
+
+**Note**: These are **numerical approximations** using standard methods. They are not suitable for applications requiring exact symbolic computation or high-precision results.
+
+---
+
+## Performance Characteristics
+
+### Measured Performance (Release Build)
+
+| Operation | Time | Notes |
+|-----------|------|-------|
+| Dodecet creation | ~1-2 ns | Inline, const-constructible |
+| Nibble access | ~1 ns | Bit extraction |
+| Bitwise ops | ~0.5 ns | Native CPU operations |
+| Distance calc | ~45 ns | Includes sqrt |
+| Function decode | ~180 ns | With interpolation |
+
+**Important**: Performance varies significantly by:
+- Build configuration (debug vs release)
+- CPU architecture
+- Compiler version
+- Data locality
+
+Run `cargo bench` on your target hardware for accurate measurements.
+
+---
 
 ## Hex Editor Integration
 
-Dodecets are hex-editor friendly. Each dodecet appears as **3 consecutive hex digits**:
+Dodecets are designed to be human-readable in hex editors:
 
 ```
-Offset  +0   +1   +2   +3   +4   +5   +6   +7
+Offset  +0    +1    +2    +3    +4    +5    +6    +7
 --------+-----+-----+-----+-----+-----+-----+-----+----
-00000000+123 456 789 ABC DEF 012 345 678
+00000000+123  456  789  ABC  DEF  012  345  678
+         ^^^  ^^^  ^^^  ^^^
+         |    |    |    +-- 4th dodecet: 0xABC
+         |    |    +------- 3rd dodecet: 0x789
+         |    +------------ 2nd dodecet: 0x456
+         +----------------- 1st dodecet: 0x123
 ```
 
-This makes debugging and inspection straightforward:
-
-```
+```rust
 use dodecet_encoder::hex;
 
-// Format for display
+// Formatting utilities
 let spaced = hex::format_spaced("123456789");  // "123 456 789"
-let view = hex::hex_view("123456789ABC");      // Full hex editor view
-
-// Validation
-assert!(hex::is_valid("123456"));              // OK
-assert!(!hex::is_valid("12345"));              // Wrong length
+let valid = hex::is_valid("123456");           // true
+let invalid = hex::is_valid("12345");          // false (not multiple of 3)
 ```
 
-## Performance
+---
 
-Benchmarks show significant advantages over traditional 8-bit encoding:
-
-```
-Dodecet Creation:
-  from_hex:           1.2 ns
-  new (checked):      1.5 ns
-
-Dodecet Operations:
-  nibble access:      0.8 ns
-  bitwise AND:        0.5 ns
-  arithmetic ADD:     0.6 ns
-  normalize:          2.1 ns
-
-Hex Encoding (100 values):
-  encode:             150 ns
-  decode:             180 ns
-
-Geometric Operations:
-  point creation:     3.2 ns
-  distance calc:      45 ns
-  vector dot:         12 ns
-  vector cross:       18 ns
-
-Calculus Operations:
-  derivative:         250 ns
-  integral (1000):    15 μs
-  function encode:    8 μs
-```
-
-*Run benchmarks with: `cargo bench`*
-
-## Use Cases
-
-### 1. 3D Graphics and Geometry
-
-```rust
-// Encode a triangle mesh
-let vertices = vec![
-    Point3D::new(0x100, 0x200, 0x300),
-    Point3D::new(0x400, 0x500, 0x600),
-    Point3D::new(0x700, 0x800, 0x900),
-];
-
-// Transform mesh
-let transform = Transform3D::rotation_y(45.0);
-let transformed: Vec<Point3D> = vertices.iter()
-    .map(|p| transform.apply(p))
-    .collect();
-```
-
-### 2. Scientific Computing
-
-```rust
-// Encode a function as lookup table
-let f = |x: f64| x.sin() * x.cos();
-let table = calculus::encode_function(&f, 0.0, 2.0*PI, 1000);
-
-// Fast evaluation with interpolation
-let y = calculus::decode_function(&table, 0.0, 2.0*PI, PI/4.0);
-```
-
-### 3. Data Compression
-
-```rust
-// Compress coordinate data
-let coords: Vec<u16> = vec![0x123, 0x456, 0x789, 0xABC];
-let s = DodecetString::from_slice(&coords);
-let packed = s.to_bytes();  // 6 bytes (vs 8 bytes for u32 array)
-
-// Decompress
-let unpacked = DodecetString::from_bytes(&packed)?;
-```
-
-### 4. Numerical Analysis
-
-```rust
-// Solve optimization problem
-let objective = |p: &[f64]| (p[0] - 1.0).powi(2) + (p[1] - 2.0).powi(2);
-let gradient = |p: &[f64]| vec![2.0 * (p[0] - 1.0), 2.0 * (p[1] - 2.0)];
-let solution = calculus::gradient_descent(&objective, &gradient, &[0.0, 0.0], 0.1, 1000);
-// solution ≈ [1.0, 2.0]
-```
-
-## API Reference
+## API Summary
 
 ### Core Types
 
-- **`Dodecet`**: 12-bit value with bitwise and arithmetic operations
-- **`DodecetArray<N>`**: Fixed-size array of N dodecets
-- **`DodecetString`**: Growable vector of dodecets
+| Type | Description | Size |
+|------|-------------|------|
+| `Dodecet` | 12-bit value | 2 bytes (u16 storage) |
+| `DodecetArray<N>` | Fixed-size array | 2N bytes (stack) |
+| `DodecetString` | Growable vector | 2N + overhead (heap) |
 
 ### Geometric Types
 
-- **`Point3D`**: 3D point (x, y, z coordinates)
-- **`Vector3D`**: 3D vector with math operations
-- **`Transform3D`**: 3D transformation matrix (3x4)
-- **`Triangle`**: Triangle with 3 vertices
-- **`Box3D`**: Axis-aligned bounding box
+| Type | Description | Dodecets |
+|------|-------------|----------|
+| `Point3D` | 3D coordinate | 3 |
+| `Vector3D` | 3D vector | 3 |
+| `Transform3D` | 3x4 transform matrix | 12 |
+| `Triangle` | 3 vertices | 9 |
+| `Box3D` | Axis-aligned bounding box | 6 |
 
 ### Calculus Functions
 
-- **`derivative`**: Numerical derivative using finite differences
-- **`integral`**: Numerical integral using trapezoidal rule
-- **`gradient`**: Gradient of multivariate function
-- **`laplacian`**: Laplacian (sum of second derivatives)
-- **`gradient_descent`**: Optimization using gradient descent
-- **`encode_function`**: Encode function as lookup table
-- **`decode_function`**: Evaluate encoded function with interpolation
+| Function | Description |
+|----------|-------------|
+| `derivative` | Finite difference approximation |
+| `integral` | Trapezoidal rule integration |
+| `gradient` | Multivariate gradient |
+| `laplacian` | Sum of second derivatives |
+| `gradient_descent` | Optimization routine |
+| `encode_function` | Create lookup table |
+| `decode_function` | Interpolate from table |
 
-### Hex Utilities
-
-- **`encode`**: Encode dodecet slice to hex string
-- **`decode`**: Decode hex string to dodecets
-- **`format_spaced`**: Format hex with spaces
-- **`hex_view`**: Create hex editor view
-- **`is_valid`**: Validate hex string
+---
 
 ## Examples
 
-Run examples with:
+Run the included examples:
 
 ```bash
 # Basic usage
 cargo run --example basic_usage
 
-# Geometric shapes
+# 3D geometry
 cargo run --example geometric_shapes
 
-# Hex editor view
+# Hex visualization
 cargo run --example hex_editor
+
+# Pythagorean snapping (constraint theory)
+cargo run --example pythagorean_snapping
+
+# Comprehensive integration
+cargo run --example comprehensive_integration
 ```
 
-## Testing
+---
 
-Run tests with:
+## Testing
 
 ```bash
 # Run all tests
 cargo test
 
-# Run with output
+# Run with verbose output
 cargo test -- --nocapture
 
-# Run specific test
-cargo test test_dodecet_creation
-```
-
-## Benchmarking
-
-Run benchmarks with:
-
-```bash
-# Run all benchmarks
+# Run benchmarks (release mode)
 cargo bench
-
-# Run specific benchmark
-cargo bench --bench dodecet_benchmark dodecet_operations
 ```
 
-## Architecture
+---
 
-### Design Principles
+## Design Decisions
 
-1. **Hex-First**: Primary representation is hex for human readability
-2. **Geometric**: Optimized for 3D geometry and calculus
-3. **Performance**: Zero-copy operations where possible
-4. **Safety**: Rust's type system prevents invalid states
-5. **Simplicity**: Minimal dependencies, clear API
+### Why 12 Bits?
 
-### Memory Layout
+1. **Hex alignment**: 12 = 4 x 3, maps to 3 hex digits cleanly
+2. **3D geometry**: Good resolution for spatial coordinates
+3. **Storage**: Fits in u16 with 4 unused bits (acceptable overhead)
+4. **Historical precedent**: Nibbles (4 bits) are well-understood
 
+### Why Not 8 or 16 Bits?
+
+- 8 bits: Only 256 values, insufficient for 3D coordinates
+- 16 bits: 65,536 values but requires 4 hex digits, less elegant
+
+### Trade-offs Acknowledged
+
+1. **Precision loss**: 12 bits < f32 (23-bit mantissa) < f64 (53-bit mantissa)
+2. **Storage overhead**: 4 bits wasted per u16 (25% of storage)
+3. **Ecosystem fit**: Standard libraries expect u8/u16/u32/f32/f64
+4. **Operation cost**: Some conversions require computation
+
+---
+
+## Comparison with Standard Types
+
+```rust
+// Standard approach
+let point_f64: (f64, f64, f64) = (1.234, 5.678, 9.012);
+// Size: 24 bytes
+// Precision: ~15 decimal digits
+// Range: +/- 1.8e308
+
+// Dodecet approach
+let point_dodecet = Point3D::new(0x4D2, 0x162E, 0x2346);
+// Size: 6 bytes (75% smaller)
+// Precision: ~3 decimal digits
+// Range: 0 to 4095 per axis
 ```
-Dodecet (12 bits):
-┌─────────────────────────────────┐
-│ Nibble 2 (bits 11-8)            │
-│ Nibble 1 (bits 7-4)             │
-│ Nibble 0 (bits 3-0)             │
-└─────────────────────────────────┘
 
-Storage: u16 (16 bits, top 4 bits unused)
+Choose based on your requirements:
+- **Use dodecets** when memory/dominates and 12-bit precision is sufficient
+- **Use f64** when precision or range matters more than memory
 
-DodecetArray<N>: [Dodecet; N] (stack-allocated)
-DodecetString: Vec<Dodecet> (heap-allocated)
-```
-
-### Performance Optimizations
-
-- **Inline operations**: All core operations are `#[inline]`
-- **Zero-copy**: Slice-based operations avoid allocations
-- **SIMD-ready**: Array layout enables vectorization
-- **Branchless**: Bitwise operations minimize branching
-
-## Comparison with 8-bit
-
-| Aspect | 8-bit Byte | 12-bit Dodecet |
-|--------|------------|----------------|
-| Values | 256 | 4096 |
-| Hex digits | 2 | 3 |
-| Bit efficiency | 32 values/bit | 341 values/bit |
-| 3D coordinates | 3 bytes (low res) | 3 dodecets (high res) |
-| Geometric ops | Requires floats | Native integer ops |
-| Calculus | Limited | Built-in support |
+---
 
 ## Contributing
 
@@ -442,25 +432,33 @@ Contributions are welcome! Please:
 1. Fork the repository
 2. Create a feature branch
 3. Add tests for new functionality
-4. Ensure all tests pass
+4. Ensure all tests pass (`cargo test`)
 5. Submit a pull request
 
-## License
-
-MIT License - see LICENSE file for details
-
-## Acknowledgments
-
-- Inspired by geometric algebra and constraint theory
-- Built with Rust's performance and safety guarantees
-- Part of the SuperInstance ecosystem
-
-## References
-
-- [SuperInstance Papers](https://github.com/SuperInstance/SuperInstance-papers)
-- [Constraint Theory](https://github.com/SuperInstance/claw)
-- [Geometric Algebra](https://geometricalgebra.org/)
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md) for details.
 
 ---
 
-**Made with ❤️ by the SuperInstance Team**
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## References
+
+- [SuperInstance Ecosystem](https://github.com/SuperInstance)
+- [Constraint Theory Project](https://github.com/SuperInstance/constrainttheory)
+- [API Documentation](https://docs.rs/dodecet-encoder)
+
+---
+
+## Disclaimer
+
+This library is provided as-is for specialized use cases. It is **not** intended as a general-purpose replacement for standard numeric types. Users should carefully evaluate whether the precision and range limitations of 12-bit encoding are appropriate for their specific application.
+
+The calculus functions use standard numerical approximation techniques and may not be suitable for applications requiring exact symbolic computation or certified numerical bounds.
+
+---
+
+*Built with Rust's performance and safety guarantees.*
