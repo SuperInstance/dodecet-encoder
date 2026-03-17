@@ -233,7 +233,7 @@ where
 /// assert!((result[1] - 2.0).abs() < 0.1);
 /// ```
 pub fn gradient_descent<F, G>(
-    f: &F,
+    _f: &F,
     grad: &G,
     start: &[f64],
     learning_rate: f64,

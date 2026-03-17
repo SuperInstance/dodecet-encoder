@@ -58,11 +58,19 @@ pub mod geometric;
 pub mod hex;
 pub mod calculus;
 
+// WASM bindings
+#[cfg(feature = "wasm")]
+pub mod wasm;
+
 // Re-export core types
 pub use dodecet::Dodecet;
 pub use array::DodecetArray;
 pub use string::DodecetString;
 pub use geometric::{Point3D, Vector3D, Transform3D};
+
+// Re-export WASM types when feature is enabled
+#[cfg(feature = "wasm")]
+pub use wasm::{WasmDodecet, WasmPoint3D, WasmVector3D, DodecetUtils};
 
 /// Maximum value of a dodecet (12 bits = 4095)
 pub const MAX_DODECET: u16 = 0xFFF;

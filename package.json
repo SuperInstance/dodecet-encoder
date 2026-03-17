@@ -1,0 +1,58 @@
+{
+  "name": "@superinstance/dodecet-encoder",
+  "version": "1.0.0",
+  "description": "A 12-bit dodecet encoding system optimized for geometric and calculus operations",
+  "keywords": [
+    "encoding",
+    "geometry",
+    "12-bit",
+    "dodecet",
+    "math",
+    "wasm",
+    "webassembly"
+  ],
+  "author": "SuperInstance Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SuperInstance/dodecet-encoder.git"
+  },
+  "main": "dist/dodecet_encoder.js",
+  "module": "dist/dodecet_encoder.js",
+  "types": "dist/dodecet_encoder.d.ts",
+  "files": [
+    "dist/",
+    "pkg/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build:wasm": "cd crates/dodecet-encoder && wasm-pack build --target web --out-dir ../../pkg",
+    "build:ts": "tsc",
+    "build": "npm run build:wasm && npm run build:ts",
+    "test": "wasm-pack test --node",
+    "test:browser": "wasm-pack test --firefox",
+    "dev": "vite",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0",
+    "vite-plugin-wasm": "^3.0.0"
+  },
+  "peerDependencies": {
+    "vite": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/dodecet_encoder.js",
+      "require": "./dist/dodecet_encoder.js",
+      "types": "./dist/dodecet_encoder.d.ts"
+    }
+  }
+}

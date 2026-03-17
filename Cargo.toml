@@ -1,13 +1,15 @@
 [package]
 name = "dodecet-encoder"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 authors = ["SuperInstance Team"]
 license = "MIT"
 description = "A 12-bit dodecet encoding system optimized for geometric and calculus operations"
 repository = "https://github.com/SuperInstance/dodecet-encoder"
-keywords = ["encoding", "geometry", "12-bit", "dodecet", "math"]
-categories = ["encoding", "mathematics", "data-structures"]
+keywords = ["encoding", "geometry", "12-bit", "dodecet", "math", "wasm"]
+categories = ["encoding", "mathematics", "data-structures", "wasm"]
+readme = "README.md"
+include = ["src/**/*.rs", "Cargo.toml", "README.md", "LICENSE", "CHANGELOG.md"]
 
 [lib]
 name = "dodecet_encoder"
@@ -27,13 +29,20 @@ serde_json = { version = "1.0", optional = true }
 # For geometric operations
 nalgebra = { version = "0.32", optional = true }
 
+# WASM support (optional)
+wasm-bindgen = { version = "0.2", optional = true }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", optional = true }
+
 [dev-dependencies]
 criterion = "0.5"
+wasm-bindgen-test = "0.3"
 
 [features]
 default = []
 serde = ["dep:serde", "dep:serde_json"]
 geometry = ["dep:nalgebra"]
+wasm = ["dep:wasm-bindgen", "dep:js-sys", "dep:web-sys"]
 
 [[bench]]
 name = "dodecet_benchmark"
@@ -46,3 +55,9 @@ codegen-units = 1
 
 [profile.bench]
 inherits = "release"
+
+# WASM-specific optimizations
+[profile.release-wasm]
+inherits = "release"
+opt-level = "s"
+overflow-checks = false

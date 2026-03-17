@@ -74,10 +74,31 @@ impl Dodecet {
     /// assert_eq!(d.value(), 0xABC);
     /// ```
     #[inline]
-    pub fn from_hex(value: u16) -> Self {
-        debug_assert!(value <= MAX_DODECET, "Dodecet overflow");
+    pub const fn from_hex(value: u16) -> Self {
         Dodecet {
             value: value & MAX_DODECET,
+        }
+    }
+
+    /// Create a dodecet from a signed i16 value (-2048 to 2047)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// use dodecet_encoder::Dodecet;
+    ///
+    /// let d = Dodecet::from_signed(-100);
+    /// assert_eq!(d.as_signed(), -100);
+    /// ```
+    #[inline]
+    pub fn from_signed(value: i16) -> Self {
+        let unsigned = if value < 0 {
+            (value + 4096) as u16
+        } else {
+            value as u16
+        };
+        Dodecet {
+            value: unsigned & MAX_DODECET,
         }
     }
 

@@ -4,7 +4,6 @@
 // representation for cellular agents (Claw agents) in the SuperInstance ecosystem.
 
 use dodecet_encoder::{Dodecet, DodecetArray, Point3D, Vector3D};
-use std::collections::HashMap;
 
 /// Represents the state of a cellular agent
 #[derive(Debug, Clone)]
@@ -29,17 +28,25 @@ impl AgentState {
     }
 
     /// Serialize to compact dodecet array (8 dodecets = 16 bytes)
-    fn serialize(&self) -> DodecetArray<8> {
-        let mut data = [Dodecet::from_hex(0); 8];
-        data[0] = Dodecet::new(self.position.x()).unwrap();
-        data[1] = Dodecet::new(self.position.y()).unwrap();
-        data[2] = Dodecet::new(self.position.z()).unwrap();
-        data[3] = Dodecet::new(self.velocity.x()).unwrap();
-        data[4] = Dodecet::new(self.velocity.y()).unwrap();
-        data[5] = Dodecet::new(self.velocity.z()).unwrap();
-        data[6] = self.status;
-        data[7] = self.energy;
-        DodecetArray::from_slice(&data)
+    fn serialize(&self) -> [Dodecet; 8] {
+        [
+            Dodecet::new(self.position.x()).unwrap(),
+            Dodecet::new(self.position.y()).unwrap(),
+            Dodecet::new(self.position.z()).unwrap(),
+            Dodecet::from_signed(self.velocity.x()),
+            Dodecet::from_signed(self.velocity.y()),
+            Dodecet::from_signed(self.velocity.z()),
+            self.status,
+            self.energy,
+        ]
+    }
+
+    /// Convert serialized state to hex string for hashing
+    fn to_hex_string(&self) -> String {
+        self.serialize()
+            .iter()
+            .map(|d| format!("{:03X}", d.value()))
+            .collect()
     }
 
     /// Calculate memory efficiency vs traditional struct
@@ -91,8 +98,8 @@ fn main() {
 
     // 2. Serialize agents
     println!("\n2. Serialization:");
-    let state1 = agent1.serialize();
-    println!("   Agent 1 serialized: {}", state1.to_hex_string());
+    let _state1 = agent1.serialize();
+    println!("   Agent 1 serialized: {}", agent1.to_hex_string());
     println!("   Size: 16 bytes (8 dodecets)");
 
     // 3. Memory efficiency
@@ -111,7 +118,7 @@ fn main() {
     let creation_time = start.elapsed();
 
     let start = std::time::Instant::now();
-    let states: Vec<DodecetArray<8>> = agents.iter()
+    let states: Vec<[Dodecet; 8]> = agents.iter()
         .map(|a| a.serialize())
         .collect();
     let serial_time = start.elapsed();
@@ -148,7 +155,7 @@ fn main() {
     println!("\n6. Equipment Management:");
     let mut equipped_agent = AgentState::new(0x200, 0x300, 0x400);
     equipped_agent.status = status::EQUIPPING;
-    equipped_agent.equipment = DodecetArray::from_slice(&[
+    equipped_agent.equipment = DodecetArray::from_dodecets([
         equipment::MEMORY,
         equipment::REASONING,
         equipment::CONSENSUS,
@@ -171,9 +178,9 @@ fn main() {
     println!("   Velocity: {:?}", moving_agent.velocity);
 
     for step in 1..=5 {
-        let new_x = (moving_agent.position.x() as i32 + moving_agent.velocity.x()) as u16 % 4096;
-        let new_y = (moving_agent.position.y() as i32 + moving_agent.velocity.y()) as u16 % 4096;
-        let new_z = (moving_agent.position.z() as i32 + moving_agent.velocity.z()) as u16 % 4096;
+        let new_x = (moving_agent.position.x() as i32 + moving_agent.velocity.x() as i32) as u16 % 4096;
+        let new_y = (moving_agent.position.y() as i32 + moving_agent.velocity.y() as i32) as u16 % 4096;
+        let new_z = (moving_agent.position.z() as i32 + moving_agent.velocity.z() as i32) as u16 % 4096;
         moving_agent.position = Point3D::new(new_x, new_y, new_z);
         println!("   Step {}: {:?}", step, moving_agent.position);
     }
@@ -210,9 +217,9 @@ fn main() {
     let test1 = AgentState::new(0x100, 0x200, 0x300);
     let test2 = AgentState::new(0x100, 0x200, 0x301);
 
-    let ref_hash = reference.serialize().to_hex_string();
-    let test1_hash = test1.serialize().to_hex_string();
-    let test2_hash = test2.serialize().to_hex_string();
+    let ref_hash = reference.to_hex_string();
+    let test1_hash = test1.to_hex_string();
+    let test2_hash = test2.to_hex_string();
 
     println!("   Reference state hash: {}", ref_hash);
     println!("   Test 1 hash: {}", test1_hash);

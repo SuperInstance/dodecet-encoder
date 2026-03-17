@@ -316,7 +316,6 @@ fn main() {
     let loss_64 = quantization_information_gain(&original, &quantized_64);
     let loss_256 = quantization_information_gain(&original, &quantized_256);
 
-    println!("   Original entropy: {:.4} bits", shannon_entropy(&probability_distribution(
     let dodecets: Vec<Dodecet> = original.iter().map(|&v| Dodecet::new(v).unwrap()).collect();
     println!("   Original entropy: {:.4} bits", shannon_entropy(&probability_distribution(&dodecets)));
     println!("   Quantized to 64-unit bins:");

@@ -128,13 +128,14 @@ fn benchmark_hex_encoding(iterations: usize) -> BenchmarkResult {
 }
 
 fn benchmark_batch_operations(iterations: usize) -> BenchmarkResult {
-    let mut arr = DodecetArray::<100>::from_slice(&[0x123; 100]);
+    let arr = DodecetArray::<100>::from_slice(&[0x123; 100]);
     let start = Instant::now();
     for _ in 0..iterations {
-        let _ = arr.sum();
+        let arr_clone = arr.clone();
+        let _ = arr_clone.sum();
         let _ = arr.average();
-        let _ = arr.min();
-        let _ = arr.max();
+        let _ = arr.iter().min();
+        let _ = arr.iter().max();
     }
     let elapsed = start.elapsed();
     BenchmarkResult::new("Batch Operations".to_string(), iterations * 4, elapsed)
@@ -316,7 +317,7 @@ fn main() {
     // Deserialization benchmark
     let start = Instant::now();
     let _deserialized: Vec<Point3D> = serialized.iter()
-        .filter_map(|s| Point3D::from_hex_str(s))
+        .filter_map(|s| Point3D::from_hex_str(s).ok())
         .collect();
     let deserial_time = start.elapsed();
 

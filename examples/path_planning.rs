@@ -3,7 +3,7 @@
 // This example demonstrates path planning and navigation using dodecet encoding,
 // showing how discrete geometric representation enables efficient algorithms.
 
-use dodecet_encoder::{Dodecet, Point3D, Vector3D};
+use dodecet_encoder::{Point3D, Vector3D};
 use std::collections::{HashSet, BinaryHeap, HashMap};
 use std::cmp::Ordering;
 
