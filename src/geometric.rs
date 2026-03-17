@@ -66,7 +66,7 @@ impl Point3D {
     /// # Example
     ///
     /// ```rust
-/// /// use dodecet_encoder::geometric::Point3D;
+    /// use dodecet_encoder::geometric::Point3D;
     ///
     /// let point = Point3D::new(0x800, 0x800, 0x800);
     /// let (nx, ny, nz) = point.normalized();
@@ -376,7 +376,7 @@ impl Transform3D {
         let (x, y, z) = point.signed();
 
         let to_dodecet = |v: i32| -> u16 {
-            let v = ((v % 4096) + 4096) % 4096;
+            let v = v.rem_euclid(4096);
             v as u16
         };
 

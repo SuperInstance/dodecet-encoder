@@ -44,7 +44,7 @@ pub fn encode(dodecets: &[Dodecet]) -> String {
 /// assert_eq!(dodecets[0].value(), 0x123);
 /// ```
 pub fn decode(s: &str) -> Result<Vec<Dodecet>> {
-    if s.len() % 3 != 0 {
+    if !s.len().is_multiple_of(3) {
         return Err(DodecetError::InvalidHex);
     }
 
@@ -102,7 +102,7 @@ pub fn decode_dodecet(s: &str) -> Result<Dodecet> {
 /// assert!(!hex::is_valid("GHI")); // Non-hex characters
 /// ```
 pub fn is_valid(s: &str) -> bool {
-    if s.len() % 3 != 0 {
+    if !s.len().is_multiple_of(3) {
         return false;
     }
 
@@ -221,7 +221,7 @@ fn dodecet_to_ascii(d: &Dodecet) -> String {
     let n2 = d.nibble(2).unwrap();
 
     let to_char = |n: u8| -> char {
-        if n >= 0x20 && n <= 0x7E {
+        if (0x20..=0x7E).contains(&n) {
             n as char
         } else {
             '.'

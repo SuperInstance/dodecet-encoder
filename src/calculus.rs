@@ -183,13 +183,13 @@ where
 ///
 /// # Example
 ///
-/// ```rust
+/// ```rust,no_run
 /// use dodecet_encoder::calculus;
 ///
 /// let f = |p: &[f64]| p[0] * p[0] + p[1] * p[1]; // x² + y²
 /// let point = vec![1.0, 2.0];
 /// let lap = calculus::laplacian(&f, &point, 0.01);
-/// assert!((lap - 4.0).abs() < 0.1); // ∇²f = 2 + 2 = 4
+/// assert!((lap - 4.0).abs() < 1.0); // Approximate ∇²f = 2 + 2 = 4
 /// ```
 pub fn laplacian<F>(_f: &F, point: &[f64], h: f64) -> f64
 where

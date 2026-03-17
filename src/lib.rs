@@ -35,12 +35,12 @@
 //! let d = Dodecet::from_hex(0xABC);
 //!
 //! // Access nibbles
-//! assert_eq!(d.nibble(0), 0xC);
-//! assert_eq!(d.nibble(1), 0xB);
-//! assert_eq!(d.nibble(2), 0xA);
+//! assert_eq!(d.nibble(0).unwrap(), 0xC);
+//! assert_eq!(d.nibble(1).unwrap(), 0xB);
+//! assert_eq!(d.nibble(2).unwrap(), 0xA);
 //!
 //! // Geometric encoding: 3D point (x, y, z)
-//! let point = DodecetArray::from_slice(&[0x123, 0x456, 0x789]);
+//! let point: DodecetArray<3> = DodecetArray::from_slice(&[0x123, 0x456, 0x789]);
 //! ```
 //!
 //! ## Architecture

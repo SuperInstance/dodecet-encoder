@@ -26,7 +26,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr: DodecetArray<3> = DodecetArray::new();
     /// assert!(arr.iter().all(|d| d.is_zero()));
@@ -48,7 +48,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr = DodecetArray::<3>::from_slice(&[0x123, 0x456, 0x789]);
     /// ```
@@ -100,7 +100,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr = DodecetArray::<2>::from_slice(&[0x123, 0x456]);
     /// assert_eq!(arr.to_hex_string(), "123456");
@@ -118,7 +118,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr = DodecetArray::<2>::from_hex_str("123456").unwrap();
     /// assert_eq!(arr[0].value(), 0x123);
@@ -148,7 +148,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr = DodecetArray::<3>::from_slice(&[0x100, 0x200, 0x300]);
     /// let doubled = arr.map(|d| Dodecet::from_hex(d.value() * 2));
@@ -168,7 +168,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let a = DodecetArray::<3>::from_slice(&[0x100, 0x200, 0x300]);
     /// let b = DodecetArray::<3>::from_slice(&[0x001, 0x002, 0x003]);
@@ -196,7 +196,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr = DodecetArray::<3>::from_slice(&[0x100, 0x200, 0x300]);
     /// assert_eq!(arr.sum().value(), 0x600);
@@ -210,7 +210,7 @@ impl<const N: usize> DodecetArray<N> {
     /// # Example
     ///
     /// ```rust
-    /// use dodecet_encoder::DodecetArray;
+    /// use dodecet_encoder::{DodecetArray, Dodecet};
     ///
     /// let arr = DodecetArray::<3>::from_slice(&[0x000, 0x003, 0x006]);
     /// let avg = arr.average();

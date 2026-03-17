@@ -156,7 +156,7 @@ impl DodecetString {
     /// assert_eq!(s[0].value(), 0x123);
     /// ```
     pub fn from_hex_str(s: &str) -> Result<Self> {
-        if s.len() % 3 != 0 {
+        if !s.len().is_multiple_of(3) {
             return Err(DodecetError::InvalidHex);
         }
 
@@ -184,7 +184,7 @@ impl DodecetString {
     /// assert_eq!(bytes.len(), 3); // 2 dodecets = 3 bytes
     /// ```
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity((self.data.len() * 3 + 1) / 2);
+        let mut bytes = Vec::with_capacity((self.data.len() * 3).div_ceil(2));
 
         for chunk in self.data.chunks(2) {
             if chunk.len() == 2 {
