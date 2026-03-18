@@ -421,6 +421,57 @@ let invalid = hex::is_valid("12345");          // false (not multiple of 3)
 | `DodecetArray<N>` | Fixed-size array | 2N bytes (stack) |
 | `DodecetString` | Growable vector | 2N + overhead (heap) |
 
+**Component Relationships:**
+
+```mermaid
+graph TB
+    subgraph "Foundation"
+        DODECET[Dodecet]
+    end
+
+    subgraph "Collections"
+        ARRAY[DodecetArray&lt;N&gt;]
+        STRING[DodecetString]
+    end
+
+    subgraph "Geometry"
+        POINT[Point3D]
+        VECTOR[Vector3D]
+        TRANSFORM[Transform3D]
+        BOX[Box3D]
+        TRIANGLE[Triangle]
+    end
+
+    subgraph "Operations"
+        HEX[hex module]
+        CALC[calculus module]
+        SIMD[simd module]
+    end
+
+    DODECET --> ARRAY
+    DODECET --> STRING
+    DODECET --> POINT
+    DODECET --> VECTOR
+
+    ARRAY --> HEX
+    STRING --> HEX
+
+    POINT --> VECTOR
+    POINT --> BOX
+    POINT --> TRIANGLE
+
+    VECTOR --> VECTOR
+    VECTOR --> TRANSFORM
+
+    POINT --> CALC
+    VECTOR --> SIMD
+
+    style DODECET fill:#4CAF50
+    style POINT fill:#2196F3
+    style VECTOR fill:#FF9800
+    style TRANSFORM fill:#9C27B0
+```
+
 ### Geometric Types
 
 | Type | Description | Dodecets |
@@ -486,6 +537,39 @@ cargo bench
 ## Design Decisions
 
 ### Why 12 Bits?
+
+```mermaid
+graph TB
+    subgraph "Design Requirements"
+        HEX[Hex-friendly<br/>3 digits]
+        GEO[3D Geometry<br/>good resolution]
+        STORE[Efficient Storage<br/>fits in u16]
+        PREC[Historical Precedent<br/>nibbles well-understood]
+    end
+
+    subgraph "Solution: 12 Bits"
+        ALIGN[4 x 3 = 12<br/>hex alignment]
+        RES[4096 states<br/>per axis]
+        FIT[u16 + 4 bits<br/>minimal waste]
+        NIB[3 nibbles<br/>familiar concept]
+    end
+
+    HEX --> ALIGN
+    GEO --> RES
+    STORE --> FIT
+    PREC --> NIB
+
+    ALIGN --> TWELVE[12-Bit Dodecet]
+    RES --> TWELVE
+    FIT --> TWELVE
+    NIB --> TWELVE
+
+    style TWELVE fill:#4CAF50
+    style ALIGN fill:#e1f5fe
+    style RES fill:#fff3e0
+    style FIT fill:#f3e5f5
+    style NIB fill:#e8f5e9
+```
 
 1. **Hex alignment**: 12 = 4 x 3, maps to 3 hex digits cleanly
 2. **3D geometry**: Good resolution for spatial coordinates

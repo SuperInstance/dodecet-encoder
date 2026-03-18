@@ -25,6 +25,100 @@ These examples demonstrate practical applications of the **dodecet-encoder** lib
 - **Deterministic**: No floating-point drift or rounding errors
 - **Fast**: Integer operations are 2-5x faster than floating-point
 
+## Example Ecosystem
+
+```mermaid
+graph TB
+    subgraph "Basic Examples"
+        B1[basic_usage<br/>Core operations]
+        B2[hex_editor<br/>Hex visualization]
+        B3[performance_comparison<br/>Benchmarks]
+    end
+
+    subgraph "Geometric Examples"
+        G1[geometric_shapes<br/>3D geometry]
+        G2[vector_math<br/>Vector operations]
+        G3[transformations<br/>3D transforms]
+    end
+
+    subgraph "Constraint Theory"
+        C1[pythagorean_snapping<br/>Φ-Folding]
+        C2[rigidity_matroid<br/>Laman's Theorem]
+        C3[holonomy_transport<br/>Parallel transport]
+        C4[entropy_calculation<br/>Information theory]
+    end
+
+    subgraph "Advanced Examples"
+        A1[cellular_agents<br/>Agent state]
+        A2[path_planning<br/>A* algorithm]
+        A3[webgl_integration<br/>Browser viz]
+    end
+
+    subgraph "Web Integration"
+        W1[web_integration.html<br/>Interactive demo]
+    end
+
+    B1 --> G1
+    B2 --> G2
+    B3 --> G3
+    G1 --> C1
+    G2 --> C2
+    G3 --> C3
+    C1 --> A1
+    C2 --> A2
+    C3 --> A3
+    A3 --> W1
+
+    style B1 fill:#e1f5fe
+    style B2 fill:#e1f5fe
+    style B3 fill:#e1f5fe
+    style G1 fill:#fff3e0
+    style G2 fill:#fff3e0
+    style G3 fill:#fff3e0
+    style C1 fill:#f3e5f5
+    style C2 fill:#f3e5f5
+    style C3 fill:#f3e5f5
+    style C4 fill:#f3e5f5
+    style A1 fill:#e8f5e9
+    style A2 fill:#e8f5e9
+    style A3 fill:#e8f5e9
+    style W1 fill:#fce4ec
+```
+
+## Learning Path
+
+```mermaid
+graph LR
+    START[Start Here] --> B1[basic_usage]
+    B1 --> B2[hex_editor]
+    B2 --> B3[performance_comparison]
+
+    B3 --> CHOOSE{Choose Path}
+
+    CHOOSE -->|Geometry| G1[geometric_shapes]
+    CHOOSE -->|Constraint Theory| C1[pythagorean_snapping]
+    CHOOSE -->|Advanced| A1[cellular_agents]
+
+    G1 --> G2[vector_math]
+    G2 --> G3[transformations]
+
+    C1 --> C2[rigidity_matroid]
+    C2 --> C3[holonomy_transport]
+    C3 --> C4[entropy_calculation]
+
+    G3 --> ADV[Advanced Topics]
+    C4 --> ADV
+
+    ADV --> A2[path_planning]
+    ADV --> A3[webgl_integration]
+
+    A3 --> WEB[web_integration.html]
+
+    style START fill:#4CAF50
+    style WEB fill:#FF5722
+    style CHOOSE fill:#FFC107
+```
+
 ### Example Categories
 
 **Basic Examples:**
@@ -161,6 +255,36 @@ cargo run --example pythagorean_snapping
 - Creates rigidity matroid for deterministic logic
 - O(n²) → O(log n) geometric rotation
 
+**Pythagorean Snapping Flow:**
+
+```mermaid
+graph TB
+    subgraph "Input"
+        PT[Point3D<br/>x, y, z]
+    end
+
+    subgraph "Snapping Process"
+        CALC[Calculate ratios<br/>x:y, y:z, x:z]
+        FIND[Find nearest<br/>Pythagorean triple]
+        SNAP[Snap coordinates<br/>to triple ratios]
+    end
+
+    subgraph "Output"
+        SNAP_PT[Snapped Point3D]
+        ERROR[Snapping error]
+    end
+
+    PT --> CALC
+    CALC --> FIND
+    FIND --> SNAP
+    SNAP --> SNAP_PT
+    SNAP --> ERROR
+
+    style CALC fill:#e1f5fe
+    style FIND fill:#fff3e0
+    style SNAP fill:#f3e5f5
+```
+
 **Features:**
 - Snaps points to nearest Pythagorean triple (3-4-5, 5-12-13, etc.)
 - 12-bit precision (4096 states)
@@ -257,6 +381,49 @@ cargo run --example cellular_agents
 - Memory-efficient serialization (16 bytes vs 48+ bytes)
 - Spatial queries and neighbor detection
 - Deterministic state comparison
+
+**Cellular Agent State Encoding:**
+
+```mermaid
+graph TB
+    subgraph "Agent State (8 dodecets = 16 bytes)"
+        POS[Position<br/>3 dodecets<br/>x, y, z]
+        VEL[Velocity<br/>3 dodecets<br/>vx, vy, vz]
+        STA[Status<br/>1 dodecet<br/>state flags]
+        ENG[Energy<br/>1 dodecet<br/>0-4095]
+    end
+
+    subgraph "Traditional Representation (48+ bytes)"
+        F64_POS[Position<br/>3 x f64 = 24 bytes]
+        F64_VEL[Velocity<br/>3 x f64 = 24 bytes]
+        ENUM[Status<br/>enum = 1-8 bytes]
+        FLOAT[Energy<br/>f32 = 4 bytes]
+    end
+
+    POS --> POS_ENC[6 bytes]
+    VEL --> VEL_ENC[6 bytes]
+    STA --> STA_ENC[2 bytes]
+    ENG --> ENG_ENC[2 bytes]
+
+    POS_ENC --> TOTAL[Total: 16 bytes]
+    VEL_ENC --> TOTAL
+    STA_ENC --> TOTAL
+    ENG_ENC --> TOTAL
+
+    F64_POS --> F64_TOTAL[Total: 52+ bytes]
+    F64_VEL --> F64_TOTAL
+    ENUM --> F64_TOTAL
+    FLOAT --> F64_TOTAL
+
+    TOTAL -->|69% smaller| SAVINGS[Memory Savings]
+
+    style POS fill:#e1f5fe
+    style VEL fill:#fff3e0
+    style STA fill:#f3e5f5
+    style ENG fill:#e8f5e9
+    style TOTAL fill:#4CAF50
+    style SAVINGS fill:#8BC34A
+```
 
 **Features:**
 - Create and serialize 1000 agents
