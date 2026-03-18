@@ -106,7 +106,10 @@ fn bench_string_operations(c: &mut Criterion) {
         });
 
         group.bench_with_input(BenchmarkId::new("to_hex_string", size), &size, |b, &size| {
-            let s: DodecetString = (0..size).map(|i| Dodecet::from_hex(i as u16 % 4096)).collect();
+            let mut s = DodecetString::with_capacity(size);
+            for i in 0..size {
+                s.push(i as u16 % 4096);
+            }
             b.iter(|| black_box(&s).to_hex_string());
         });
 
@@ -152,18 +155,21 @@ fn bench_geometric_operations(c: &mut Criterion) {
     });
 
     group.bench_function("point_distance", |b| {
-        b.iter(|| black_box(p1).distance_to(black_box(&p2)));
+        let p1 = Point3D::new(0x100, 0x200, 0x300);
+        let p2 = Point3D::new(0x400, 0x500, 0x600);
+        b.iter(|| black_box(&p1).distance_to(black_box(&p2)));
     });
 
-    let v1 = Vector3D::new(100, 200, 300);
-    let v2 = Vector3D::new(400, 500, 600);
-
     group.bench_function("vector_dot", |b| {
-        b.iter(|| black_box(v1).dot(black_box(&v2)));
+        let v1 = Vector3D::new(100, 200, 300);
+        let v2 = Vector3D::new(400, 500, 600);
+        b.iter(|| black_box(&v1).dot(black_box(&v2)));
     });
 
     group.bench_function("vector_cross", |b| {
-        b.iter(|| black_box(v1).cross(black_box(&v2)));
+        let v1 = Vector3D::new(100, 200, 300);
+        let v2 = Vector3D::new(400, 500, 600);
+        b.iter(|| black_box(&v1).cross(black_box(&v2)));
     });
 
     group.finish();
@@ -205,7 +211,10 @@ fn bench_comparison_with_u8(c: &mut Criterion) {
     group.bench_function("dodecet_string_171", |b| {
         b.iter(|| {
             // 171 dodecets = 2052 bytes = ~256 bytes packed
-            let data: DodecetString = (0..171).map(|_| Dodecet::from_hex(0)).collect();
+            let mut data = DodecetString::with_capacity(171);
+            for _ in 0..171 {
+                data.push(0);
+            }
             black_box(data);
         });
     });
