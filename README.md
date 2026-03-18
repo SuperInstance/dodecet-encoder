@@ -9,6 +9,40 @@
 
 A **dodecet** is a 12-bit unit (4,096 possible values) designed as an alternative building block for specific computational domains. The name comes from "dozen" (12) + "octet" (8 bits).
 
+### 12-Bit Encoding Structure
+
+```mermaid
+graph LR
+    subgraph "Dodecet Bit Layout (12 bits)"
+        B11[Bit 11] --> B8[Bit 8]
+        B7[Bit 7] --> B4[Bit 4]
+        B3[Bit 3] --> B0[Bit 0]
+    end
+
+    subgraph "Nibble Organization"
+        N2["Nibble 2<br/>(Bits 11-8)<br/>0-15"]
+        N1["Nibble 1<br/>(Bits 7-4)<br/>0-15"]
+        N0["Nibble 0<br/>(Bits 3-0)<br/>0-15"]
+    end
+
+    subgraph "Storage"
+        U16["u16 Storage<br/>(16 bits)<br/>4 bits unused"]
+    end
+
+    B11 --> N2
+    B7 --> N1
+    B3 --> N0
+    N2 --> U16
+    N1 --> U16
+    N0 --> U16
+
+    style N2 fill:#e1f5fe
+    style N1 fill:#fff3e0
+    style N0 fill:#e8f5e9
+```
+
+### Example: Dodecet 0xABC
+
 ```
 +---------------------------------------------------+
 |                    DODECET (12 bits)              |
@@ -17,6 +51,8 @@ A **dodecet** is a 12-bit unit (4,096 possible values) designed as an alternativ
 |  Nibble 2   |  Nibble 1   |  Nibble 0   |  (u16)   |
 +-------------+-------------+-------------+----------+
 |    0xA      |    0xB      |    0xC      |   0x0ABC |
++-------------+-------------+-------------+----------+
+|   1010      |   1011      |   1100      |          |
 +-------------+-------------+-------------+----------+
 ```
 
@@ -91,6 +127,73 @@ graph TB
     D --> HEX
     DS --> BYTE
     V3 --> CALC
+```
+
+### Coordinate Transformation Flow
+
+```mermaid
+graph LR
+    A[u16 Value] --> B[Dodecet]
+    B --> C[Normalize 0.0-1.0]
+    C --> D[Signed -2048 to 2047]
+    D --> E[Encode to Hex String]
+
+    E --> F[Decode back to Dodecet]
+    F --> G[Apply Operations]
+```
+    style B fill:#e1f5fe
+    style C fill:#e8f5e9
+    style D fill:#90EE90
+    style E fill:#fff
+    style F fill:#e1f5fe
+```
+
+### Byte Packing Efficiency
+```mermaid
+graph LR
+    subgraph "Standard Storage"
+        S1[2 Dodecets<br/>4 bytes]
+    end
+
+    subgraph "Packed Storage"
+        S2[2 Dodecets<br/>3 bytes]
+    end
+
+    subgraph "Compression Ratio"
+        R[25% smaller]
+    end
+
+    S1 --> |"2:3 ratio"| S2
+    S2 --> R
+
+    style S2 fill:#90EE90
+    style R fill:#228B22
+```
+    style S1 fill:#fbb
+```
+
+### API Usage Flow
+```mermaid
+sequenceDiagram
+    participant User
+    participant DE as DodecetEncoder
+    participant P3D as Point3D
+    participant V3D as Vector3D
+    participant T3D as Transform3D
+    participant Calc as calculus
+
+    User->>DE: Create Dodecet
+    DE->>P3D: Create Point3D
+    P3D->>V3D: Get distance
+    P3D->V3D: Get vector
+    V3D->>V3D: dot product
+    V3D->>V3D: cross product
+    V3D->>T3D: Apply transformation
+    T3D->>P3D: Return transformed point
+    User->>Calc: derivative
+    Calc->>Calc: integral
+    Calc->>Calc: gradient_descent
+    Calc-->User: Return result
 ```
 
 ---
