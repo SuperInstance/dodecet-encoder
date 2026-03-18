@@ -18,7 +18,7 @@ impl SimdOps {
     #[cfg(target_arch = "x86_64")]
     #[target_feature(enable = "avx2")]
     #[inline]
-    pub unsafe fn normalize_avx2(dodecets: &[Dodecet], output: &mut [f32]) -> Result<()> {
+    pub unsafe fn normalize_avx2(dodecets: &[Dodecet], mut output: &mut [f32]) -> Result<()> {
         if dodecets.len() != output.len() {
             return Err(crate::DodecetError::InvalidLength);
         }
@@ -67,7 +67,7 @@ impl SimdOps {
     #[cfg(target_arch = "aarch64")]
     #[target_feature(enable = "neon")]
     #[inline]
-    pub unsafe fn normalize_neon(dodecets: &[Dodecet], output: &mut [f32]) -> Result<()> {
+    pub unsafe fn normalize_neon(dodecets: &[Dodecet], mut output: &mut [f32]) -> Result<()> {
         if dodecets.len() != output.len() {
             return Err(crate::DodecetError::InvalidLength);
         }
@@ -108,8 +108,7 @@ impl SimdOps {
         Ok(())
     }
 
-    /// Fallback implementation for non-SIMD platforms
-    #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
+    /// Fallback scalar implementation (available on all platforms)
     #[inline]
     pub fn normalize_scalar(dodecets: &[Dodecet], output: &mut [f32]) -> Result<()> {
         if dodecets.len() != output.len() {
@@ -141,15 +140,8 @@ impl SimdOps {
             }
         }
 
-        #[cfg(not(any(target_arch = "x86_64", target_arch = "aarch64")))]
-        {
-            return Self::normalize_scalar(dodecets, output);
-        }
-
-        #[cfg(any(target_arch = "x86_64", target_arch = "aarch64"))]
-        {
-            Self::normalize_scalar(dodecets, output)
-        }
+        // Fallback to scalar implementation on all platforms
+        Self::normalize_scalar(dodecets, output)
     }
 }
 
