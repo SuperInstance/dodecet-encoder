@@ -2,7 +2,7 @@
 //!
 //! Provides vectorized implementations using platform-specific SIMD
 
-use crate::{Dodecet, DodecetArray, Result};
+use crate::{Dodecet, Result};
 
 #[cfg(target_arch = "x86_64")]
 use std::arch::x86_64::*;
