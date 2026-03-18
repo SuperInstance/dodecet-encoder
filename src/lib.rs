@@ -57,6 +57,7 @@ pub mod string;
 pub mod geometric;
 pub mod hex;
 pub mod calculus;
+pub mod simd;
 
 // WASM bindings
 #[cfg(feature = "wasm")]
@@ -95,6 +96,8 @@ pub enum DodecetError {
     InvalidNibble,
     /// Invalid geometric operation
     InvalidGeometry,
+    /// Invalid array length for SIMD operation
+    InvalidLength,
 }
 
 impl std::fmt::Display for DodecetError {
@@ -104,6 +107,7 @@ impl std::fmt::Display for DodecetError {
             DodecetError::InvalidHex => write!(f, "Invalid hex string"),
             DodecetError::InvalidNibble => write!(f, "Nibble index must be 0, 1, or 2"),
             DodecetError::InvalidGeometry => write!(f, "Invalid geometric operation"),
+            DodecetError::InvalidLength => write!(f, "Invalid array length for SIMD operation"),
         }
     }
 }
