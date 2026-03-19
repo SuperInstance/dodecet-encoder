@@ -79,32 +79,32 @@ impl DodecetWasm {
     }
 
     /// Get the value
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn value(&self) -> u16 {
         self.inner.value()
     }
 
     /// Get a specific nibble (0, 1, or 2)
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn nibble(&self, index: u8) -> Result<u8, JsError> {
         self.inner.nibble(index)
             .map_err(|e| JsError::new(&e.to_string()))
     }
 
     /// Convert to hex string
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn to_hex(&self) -> String {
         format!("{:03X}", self.inner.value())
     }
 
     /// Normalize to [0.0, 1.0]
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn normalize(&self) -> f64 {
         self.inner.normalize()
     }
 
     /// Convert to signed value [-2048, 2047]
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn as_signed(&self) -> i16 {
         self.inner.as_signed()
     }
@@ -171,7 +171,7 @@ impl Point3D {
     /// const point = new Point3D(0x123, 0x456, 0x789);
     /// console.log(point.toHex()); // "123 456 789"
     /// ```
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn to_hex(&self) -> String {
         self.inner.to_hex_string()
     }
@@ -188,7 +188,7 @@ impl Point3D {
     /// ```javascript
     /// const point = Point3D.fromHex("123 456 789");
     /// ```
-    #[wasm_bindgen(static_method)]
+    #[wasm_bindgen]
     pub fn from_hex(hex_str: &str) -> Result<Point3D, JsError> {
         let inner = RustPoint3D::from_hex_str(hex_str)
             .map_err(|e| JsError::new(&e.to_string()))?;
@@ -206,7 +206,7 @@ impl Point3D {
     /// const [nx, ny, nz] = point.normalized();
     /// console.log(nx, ny, nz); // ~0.5, ~0.5, ~0.5
     /// ```
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn normalized(&self) -> Box<[f64]> {
         let (nx, ny, nz) = self.inner.normalized();
         Box::new([nx, ny, nz])
@@ -216,7 +216,7 @@ impl Point3D {
     ///
     /// # Returns
     /// Array [sx, sy, sz]
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn signed(&self) -> Box<[i16]> {
         let (sx, sy, sz) = self.inner.signed();
         Box::new([sx, sy, sz])
@@ -236,7 +236,7 @@ impl Point3D {
     /// const p2 = new Point3D(0x100, 0, 0);
     /// console.log(p1.distanceTo(p2)); // ~256.0
     /// ```
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn distance_to(&self, other: &Point3D) -> f64 {
         self.inner.distance_to(&other.inner)
     }
@@ -286,7 +286,7 @@ impl Vector3DWasm {
     }
 
     /// Calculate magnitude
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn magnitude(&self) -> f64 {
         self.inner.magnitude()
     }
@@ -295,20 +295,20 @@ impl Vector3DWasm {
     ///
     /// # Returns
     /// Array [nx, ny, nz]
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn normalize(&self) -> Box<[f64]> {
         let (nx, ny, nz) = self.inner.normalize();
         Box::new([nx, ny, nz])
     }
 
     /// Dot product with another vector
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn dot(&self, other: &Vector3DWasm) -> i32 {
         self.inner.dot(&other.inner)
     }
 
     /// Cross product with another vector
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn cross(&self, other: &Vector3DWasm) -> Vector3DWasm {
         Vector3DWasm {
             inner: self.inner.cross(&other.inner),
@@ -316,7 +316,7 @@ impl Vector3DWasm {
     }
 
     /// Add two vectors
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn add(&self, other: &Vector3DWasm) -> Vector3DWasm {
         Vector3DWasm {
             inner: self.inner.add(&other.inner),
@@ -324,7 +324,7 @@ impl Vector3DWasm {
     }
 
     /// Subtract two vectors
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn sub(&self, other: &Vector3DWasm) -> Vector3DWasm {
         Vector3DWasm {
             inner: self.inner.sub(&other.inner),
@@ -332,7 +332,7 @@ impl Vector3DWasm {
     }
 
     /// Scale by a scalar
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn scale(&self, scalar: f64) -> Vector3DWasm {
         Vector3DWasm {
             inner: self.inner.scale(scalar),
@@ -366,7 +366,7 @@ impl Transform3DWasm {
     /// * `dx` - X translation
     /// * `dy` - Y translation
     /// * `dz` - Z translation
-    #[wasm_bindgen(static_method)]
+    #[wasm_bindgen]
     pub fn translation(dx: i16, dy: i16, dz: i16) -> Transform3DWasm {
         Transform3DWasm {
             inner: Transform3D::translation(dx, dy, dz),
@@ -379,7 +379,7 @@ impl Transform3DWasm {
     /// * `sx` - X scale
     /// * `sy` - Y scale
     /// * `sz` - Z scale
-    #[wasm_bindgen(static_method)]
+    #[wasm_bindgen]
     pub fn scale(sx: f64, sy: f64, sz: f64) -> Transform3DWasm {
         Transform3DWasm {
             inner: Transform3D::scale(sx, sy, sz),
@@ -390,7 +390,7 @@ impl Transform3DWasm {
     ///
     /// # Arguments
     /// * `angle_degrees` - Rotation angle in degrees
-    #[wasm_bindgen(static_method)]
+    #[wasm_bindgen]
     pub fn rotation_x(angle_degrees: f64) -> Transform3DWasm {
         Transform3DWasm {
             inner: Transform3D::rotation_x(angle_degrees),
@@ -401,7 +401,7 @@ impl Transform3DWasm {
     ///
     /// # Arguments
     /// * `angle_degrees` - Rotation angle in degrees
-    #[wasm_bindgen(static_method)]
+    #[wasm_bindgen]
     pub fn rotation_y(angle_degrees: f64) -> Transform3DWasm {
         Transform3DWasm {
             inner: Transform3D::rotation_y(angle_degrees),
@@ -412,7 +412,7 @@ impl Transform3DWasm {
     ///
     /// # Arguments
     /// * `angle_degrees` - Rotation angle in degrees
-    #[wasm_bindgen(static_method)]
+    #[wasm_bindgen]
     pub fn rotation_z(angle_degrees: f64) -> Transform3DWasm {
         Transform3DWasm {
             inner: Transform3D::rotation_z(angle_degrees),
@@ -426,7 +426,7 @@ impl Transform3DWasm {
     ///
     /// # Returns
     /// Transformed point
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn apply(&self, point: &Point3D) -> Point3D {
         Point3D {
             inner: self.inner.apply(&point.inner),
@@ -440,7 +440,7 @@ impl Transform3DWasm {
     ///
     /// # Returns
     /// Composed transformation
-    #[wasm_bindgen(method)]
+    #[wasm_bindgen]
     pub fn compose(&self, other: &Transform3DWasm) -> Transform3DWasm {
         Transform3DWasm {
             inner: self.inner.compose(&other.inner),
