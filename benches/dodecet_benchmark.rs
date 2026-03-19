@@ -147,8 +147,8 @@ fn bench_geometric_operations(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("geometric_operations");
 
-    let p1 = Point3D::new(0x100, 0x200, 0x300);
-    let p2 = Point3D::new(0x400, 0x500, 0x600);
+    let _p1 = Point3D::new(0x100, 0x200, 0x300);
+    let _p2 = Point3D::new(0x400, 0x500, 0x600);
 
     group.bench_function("point_creation", |b| {
         b.iter(|| Point3D::new(black_box(0x100), black_box(0x200), black_box(0x300)));
