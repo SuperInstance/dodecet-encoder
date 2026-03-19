@@ -444,6 +444,19 @@ dodecet.rs (foundation)
 
 ---
 
-**Last Updated**: 2026-03-17
+## General-Purpose Library
+
+The dodecet-encoder library is designed as a **general-purpose 12-bit encoding library** suitable for any application requiring memory-efficient spatial encoding. While it's used by SuperInstance projects (constrainttheory, claw, spreadsheet-moment) as a reference implementation, these are just example use cases.
+
+**Common Applications:**
+- 3D graphics and game engines
+- Embedded systems and IoT
+- Scientific computing and simulations
+- Network protocols and data compression
+- Any domain where 12-bit precision and memory efficiency are valuable
+
+---
+
+**Last Updated**: 2026-03-19
 **Version**: 1.0.0
 **Status**: Production Ready

@@ -1,6 +1,6 @@
-# Dodecet Encoder Integration Examples
+# Dodecet Encoder Examples
 
-Comprehensive examples demonstrating dodecet encoding integration with constraint theory and SuperInstance projects.
+Comprehensive examples demonstrating practical applications of 12-bit dodecet encoding for memory-efficient spatial computing, geometric operations, and discrete mathematics.
 
 ## Table of Contents
 
@@ -18,12 +18,22 @@ Comprehensive examples demonstrating dodecet encoding integration with constrain
 
 ## Overview
 
-These examples demonstrate practical applications of the **dodecet-encoder** library:
+These examples demonstrate practical applications of the **dodecet-encoder** library across various domains:
 
-- **12-bit encoding**: 4096 discrete states per coordinate
+**Core Benefits:**
+- **12-bit encoding**: 4096 discrete states per coordinate - ideal for many real-world applications
 - **Memory efficient**: 6 bytes per 3D point vs 24 bytes for f64 (75% savings)
 - **Deterministic**: No floating-point drift or rounding errors
 - **Fast**: Integer operations are 2-5x faster than floating-point
+- **Hex-friendly**: Easy debugging and inspection with 3-character hex representation
+
+**Applicable Domains:**
+- 3D graphics, games, and voxel engines
+- Embedded systems and IoT devices
+- Scientific computing and simulations
+- Network protocols and data compression
+- Lookup tables and function approximation
+- Discrete mathematics and constraint systems
 
 ## Example Ecosystem
 
@@ -131,11 +141,11 @@ graph LR
 - Vector operations
 - Distance calculations
 
-**Constraint Theory Examples:**
-- Pythagorean Snapping
-- Rigidity Matroid
-- Holonomy Transport
-- Entropy Calculation
+**Discrete Mathematics Examples:**
+- Pythagorean Snapping (discrete geometry)
+- Rigidity Matroid (graph theory)
+- Holonomy Transport (differential geometry)
+- Entropy Calculation (information theory)
 
 **Advanced Examples:**
 - Cellular Agents (Claw agent state)
@@ -238,11 +248,11 @@ cargo run --example geometric_shapes
 - Spatial queries
 - Transformations
 
-### Constraint Theory Examples
+### Discrete Mathematics Examples
 
 #### 5. Pythagorean Snapping
 
-Φ-Folding Operator for discrete geometry.
+Snapping coordinates to integer Pythagorean triples for deterministic discrete geometry.
 
 **Run:**
 ```bash
@@ -250,10 +260,10 @@ cargo run --example pythagorean_snapping
 ```
 
 **Key Concepts:**
-- Maps continuous coordinates to discrete Pythagorean triples
-- Integer ratio alignment eliminates hallucinations
-- Creates rigidity matroid for deterministic logic
-- O(n²) → O(log n) geometric rotation
+- Maps continuous coordinates to discrete Pythagorean triples (3-4-5, 5-12-13, etc.)
+- Useful for grid-based games, voxel engines, and discrete simulations
+- Integer ratio alignment ensures deterministic, reproducible results
+- Creates rigid geometric structures with well-defined properties
 
 **Pythagorean Snapping Flow:**
 
@@ -294,7 +304,7 @@ graph TB
 
 #### 6. Rigidity Matroid
 
-Laman's Theorem for graph rigidity detection.
+Graph rigidity detection using Laman's Theorem - useful for structural engineering, robotics, and physics simulations.
 
 **Run:**
 ```bash
@@ -302,11 +312,12 @@ cargo run --example rigidity_matroid
 ```
 
 **Key Concepts:**
-- Laman's Theorem: Generic rigidity detection
-- 2D criterion: |E| = 2|V| - 3
-- 3D criterion: |E| = 3|V| - 6
-- Degrees of freedom calculation
-- Memory-efficient graph encoding
+- Laman's Theorem: Determines if a graph structure is rigid or flexible
+- 2D criterion: |E| = 2|V| - 3 (edges = 2 × vertices - 3)
+- 3D criterion: |E| = 3|V| - 6 (edges = 3 × vertices - 6)
+- Applications: structural analysis, robotics, molecular chemistry
+- Degrees of freedom calculation for mechanical systems
+- Memory-efficient graph encoding with dodecets
 
 **Features:**
 - Check if graphs are minimally rigid
@@ -318,7 +329,7 @@ cargo run --example rigidity_matroid
 
 #### 7. Holonomy Transport
 
-Parallel transport on discrete manifolds.
+Parallel transport on discrete manifolds - useful for computer graphics, robotics path planning, and differential geometry.
 
 **Run:**
 ```bash
@@ -326,11 +337,12 @@ cargo run --example holonomy_transport
 ```
 
 **Key Concepts:**
-- Parallel transport preserves angles along paths
-- Holonomy measures rotation after closed loop
-- Gaussian curvature effects on transport
-- Geodesic curvature calculation
-- Geometric closure (truth as closure property)
+- Parallel transport: moving vectors along paths while preserving angles
+- Holonomy: net rotation after moving around a closed loop
+- Demonstrates curvature effects on curved surfaces
+- Applications: graphics (normal mapping), robotics (orientation tracking), physics simulations
+- Gaussian curvature: sphere (positive), plane (zero), saddle (negative)
+- Efficient discrete approximation using 12-bit coordinates
 
 **Features:**
 - Transport on sphere (positive curvature)
@@ -342,7 +354,7 @@ cargo run --example holonomy_transport
 
 #### 8. Entropy Calculation
 
-Information theory metrics for discrete distributions.
+Information theory metrics for discrete distributions - useful for data compression, machine learning, and statistical analysis.
 
 **Run:**
 ```bash
@@ -350,11 +362,12 @@ cargo run --example entropy_calculation
 ```
 
 **Key Concepts:**
-- Shannon entropy for probability distributions
-- Joint entropy for multiple variables
-- Mutual information and correlation detection
-- Quantization information loss
-- Spatial entropy in 3D point clouds
+- Shannon entropy: measure of information content and randomness
+- Joint entropy: information in multiple correlated variables
+- Mutual information: how much one variable tells you about another
+- Applications: data compression, feature selection, cryptography
+- Quantization information loss: measure impact of 12-bit discretization
+- Spatial entropy: analyze randomness in 3D point clouds and voxel data
 
 **Features:**
 - Uniform, binary, and skewed distributions
@@ -368,7 +381,7 @@ cargo run --example entropy_calculation
 
 #### 9. Cellular Agents
 
-Efficient state representation for Claw agents.
+Efficient state representation for agent-based simulations, games, and multi-agent systems.
 
 **Run:**
 ```bash
@@ -376,11 +389,13 @@ cargo run --example cellular_agents
 ```
 
 **Key Concepts:**
-- Agent state: position, velocity, status, energy
-- Equipment management (6 slots)
-- Memory-efficient serialization (16 bytes vs 48+ bytes)
-- Spatial queries and neighbor detection
-- Deterministic state comparison
+- Agent state: position, velocity, status, energy encoded compactly
+- Equipment/inventory management with minimal memory overhead
+- Memory-efficient serialization (16 bytes vs 48+ bytes for traditional structs)
+- Applications: game AI, robotics swarms, traffic simulation, particle systems
+- Spatial queries and neighbor detection using dodecet coordinates
+- Deterministic state comparison for reproducible simulations
+- Scales to thousands of agents with low memory footprint
 
 **Cellular Agent State Encoding:**
 
@@ -712,48 +727,50 @@ buffer.fromPoints([point1, point2, point3]);
 buffer.bind(positionLocation);
 ```
 
-### For Constraint Theory
+### For Scientific Computing
 
-**Pythagorean Snapping:**
+**Discrete Grid Simulations:**
 ```rust
 use dodecet_encoder::Point3D;
 
-let point = Point3D::new(1000, 2000, 3000);
-let snapper = PythagoreanSnapper::new();
-let snapped = snapper.snap(&point);
+// Finite element mesh with 4096x4096x4096 resolution
+let mesh_point = Point3D::new(1000, 2000, 3000);
+
+// Compact storage for millions of grid points
 ```
 
-**Rigidity Detection:**
+**Molecular Dynamics (Coarse-Grained):**
 ```rust
-let mut graph = Graph::new();
-let v0 = graph.add_vertex(0x000, 0x000, 0x000);
-let v1 = graph.add_vertex(0x100, 0x000, 0x000);
-// ... add more vertices and edges
+// Particle positions in a simulation box
+let particle = Point3D::new(0x800, 0x800, 0x800);  // Center of box
 
-let checker = RigidityChecker::new(2);
-let is_rigid = checker.is_rigid(&graph);
+// 12-bit precision often sufficient for coarse-grained simulations
+// Much faster than full floating-point precision
 ```
 
-### For SuperInstance Projects
+### For Game Development
 
-**Cellular Agent State:**
+**Voxel World Coordinates:**
+```rust
+use dodecet_encoder::Point3D;
+
+// Compact voxel storage: 6 bytes per voxel position
+let voxel_pos = Point3D::new(0x100, 0x200, 0x300);
+
+// Store 1 million voxels in 6MB instead of 24MB
+```
+
+**NPC State Management:**
 ```rust
 use dodecet_encoder::DodecetArray;
 
-// Agent state: position (3) + status (1) = 4 dodecets
-let state = DodecetArray::<4>::from_slice(&[0x100, 0x200, 0x300, 0x001]);
+// NPC state: position (3) + health/mana/stamina (3) = 6 dodecets
+let npc_state = DodecetArray::<6>::from_slice(&[
+    0x100, 0x200, 0x300,  // Position
+    0xFFF, 0x800, 0x400   // Health, Mana, Stamina
+]);
 
-// Memory efficient: 6 bytes vs 32 bytes for struct
-```
-
-**Geometric Reasoning:**
-```rust
-// Deterministic geometric logic
-let point = Point3D::new(0x100, 0x200, 0x300);
-let snapper = PythagoreanSnapper::new();
-let snapped = snapper.snap(&point);
-
-// Always snaps to same triple → deterministic reasoning
+// 12 bytes per NPC instead of 48+ bytes
 ```
 
 ## Troubleshooting
@@ -790,11 +807,22 @@ MIT License - See LICENSE file for details
 
 ## Resources
 
+### General Resources
+
 - [GitHub Repository](https://github.com/SuperInstance/dodecet-encoder)
 - [Documentation](https://docs.rs/dodecet-encoder)
 - [Tutorials](../tutorials/)
-- [Constraint Theory](https://github.com/SuperInstance/constrainttheory)
-- [SuperInstance Papers](https://github.com/SuperInstance/SuperInstance-papers)
+- [Main README](../README.md)
+
+### SuperInstance Projects Using This Library
+
+The dodecet-encoder library is used by several SuperInstance research projects as a reference implementation:
+
+- **[constrainttheory](https://github.com/SuperInstance/constrainttheory)** - Uses dodecet encoding for geometric constraint systems
+- **[claw](https://github.com/SuperInstance/claw)** - Cellular agent engine with dodecet-encoded state
+- **[spreadsheet-moment](https://github.com/SuperInstance/spreadsheet-moment)** - Agent spreadsheet platform
+
+These projects demonstrate advanced use cases, but **dodecet-encoder is a general-purpose library** suitable for any application requiring memory-efficient 12-bit encoding. You don't need to use or understand these projects to benefit from dodecet encoding.
 
 ## Support
 

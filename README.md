@@ -632,11 +632,38 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
+## Use Cases
+
+Dodecet encoding is particularly useful for:
+
+- **3D Graphics & Games**: Memory-efficient coordinate storage, especially for voxel engines
+- **Embedded Systems & IoT**: Compact data representation in resource-constrained environments
+- **Scientific Computing**: Discrete grid-based simulations with 12-bit precision
+- **Network Protocols**: Compact spatial data transmission with easy debugging (hex-friendly)
+- **Data Compression**: Efficient encoding of bounded numeric data
+- **Lookup Tables**: Function approximation with 4096-entry resolution
+
+---
+
+## Used By SuperInstance Projects
+
+This library is used by several SuperInstance projects as a reference implementation:
+
+- **constrainttheory** - Uses dodecet encoding for compact geometric state representation
+- **claw** - Uses for memory-efficient agent positioning in cellular environments
+- **spreadsheet-moment** - Uses for compact cell coordinate encoding
+
+However, **dodecet-encoder is a general-purpose library** suitable for any application requiring memory-efficient 12-bit encoding. The SuperInstance projects demonstrate real-world usage but are not required to use this library.
+
+See [https://github.com/SuperInstance](https://github.com/SuperInstance) for more information about these projects.
+
+---
+
 ## References
 
-- [SuperInstance Ecosystem](https://github.com/SuperInstance)
-- [Constraint Theory Project](https://github.com/SuperInstance/constrainttheory)
 - [API Documentation](https://docs.rs/dodecet-encoder)
+- [GitHub Repository](https://github.com/SuperInstance/dodecet-encoder)
+- [Examples Directory](./examples/)
 
 ---
 
