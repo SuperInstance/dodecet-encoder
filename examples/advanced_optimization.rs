@@ -6,12 +6,9 @@
 
 use dodecet_encoder::{
     dodecet::Dodecet,
-    geometric::{Point3D, Vector3D},
-    hex::encode,
-    array::DodecetArray,
-    string::DodecetString,
+    geometric::Point3D,
 };
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 fn main() {
     println!("=== Advanced Performance Optimization Examples ===\n");
@@ -51,14 +48,13 @@ fn batch_processing_optimization() {
     // Pre-allocate with exact capacity
     let mut points = Vec::with_capacity(10_000);
 
-    // Batch fill using unchecked operations where safe
+    // Batch fill using direct construction
     for i in 0..10_000 {
-        let x = Dodecet::from_hex((i & 0xFFF) as u16);
-        let y = Dodecet::from_hex(((i >> 12) & 0xFFF) as u16);
-        let z = Dodecet::from_hex(((i >> 24) & 0xFFF) as u16);
+        let x = (i & 0xFFF) as u16;
+        let y = ((i >> 12) & 0xFFF) as u16;
+        let z = ((i >> 24) & 0xFFF) as u16;
 
-        // Use unchecked for performance when bounds are guaranteed
-        let point = unsafe { Point3D::new_unchecked(x, y, z) };
+        let point = Point3D::new(x, y, z);
         points.push(point);
     }
 
@@ -72,9 +68,9 @@ fn batch_processing_optimization() {
     let mut sum_z = 0u32;
 
     for point in &points {
-        sum_x += point.x.value();
-        sum_y += point.y.value();
-        sum_z += point.z.value();
+        sum_x += point.x() as u32;
+        sum_y += point.y() as u32;
+        sum_z += point.z() as u32;
     }
 
     let processing_time = start.elapsed();
@@ -93,9 +89,9 @@ fn cache_friendly_structures() {
 
     // SoA layout - better for vectorized operations
     struct SoAPoints {
-        x: Vec<Dodecet>,
-        y: Vec<Dodecet>,
-        z: Vec<Dodecet>,
+        x: Vec<u16>,
+        y: Vec<u16>,
+        z: Vec<u16>,
     }
 
     impl SoAPoints {
@@ -107,14 +103,14 @@ fn cache_friendly_structures() {
             }
         }
 
-        fn push(&mut self, point: Point3D) {
-            self.x.push(point.x);
-            self.y.push(point.y);
-            self.z.push(point.z);
+        fn push(&mut self, x: u16, y: u16, z: u16) {
+            self.x.push(x);
+            self.y.push(y);
+            self.z.push(z);
         }
 
         fn process_x_only(&self) -> u32 {
-            self.x.iter().map(|d| d.value()).sum()
+            self.x.iter().map(|&d| d as u32).sum()
         }
     }
 
@@ -123,12 +119,7 @@ fn cache_friendly_structures() {
     let mut soa_points = SoAPoints::with_capacity(1_000);
 
     for i in 0..1_000 {
-        let point = Point3D::new(
-            Dodecet::from_hex(i as u16),
-            Dodecet::from_hex((i * 2) as u16),
-            Dodecet::from_hex((i * 3) as u16),
-        );
-        soa_points.push(point);
+        soa_points.push(i as u16, (i * 2) as u16, (i * 3) as u16);
     }
 
     let creation_time = start.elapsed();
@@ -193,12 +184,12 @@ fn zero_copy_parsing() {
     let start = Instant::now();
 
     // Parse directly from string without intermediate allocation
-    let dodecets: Vec<Dodecet> = hex_data
+    let dodecets: Vec<u16> = hex_data
         .as_bytes()
         .chunks_exact(3)
         .map(|chunk| {
             let hex_str = unsafe { std::str::from_utf8_unchecked(chunk) };
-            Dodecet::from_hex_str(hex_str).unwrap()
+            u16::from_str_radix(hex_str, 16).unwrap()
         })
         .collect();
 
@@ -209,7 +200,7 @@ fn zero_copy_parsing() {
     println!("   Zero-copy: No intermediate String allocations");
     println!("   Each dodecet: {}\n",
              dodecets.iter()
-                    .map(|d| d.to_hex_string())
+                    .map(|d| format!("{:03X}", d))
                     .collect::<Vec<_>>()
                     .join(", "));
 }
@@ -220,7 +211,7 @@ fn memory_pooling() {
     println!("   Reusing allocations to reduce memory pressure\n");
 
     struct DodecetPool {
-        pool: Vec<DodecetArray<100>>,
+        pool: Vec<Vec<u16>>,
     }
 
     impl DodecetPool {
@@ -230,11 +221,12 @@ fn memory_pooling() {
             }
         }
 
-        fn acquire(&mut self) -> DodecetArray<100> {
-            self.pool.pop().unwrap_or_else(|| DodecetArray::new())
+        fn acquire(&mut self) -> Vec<u16> {
+            self.pool.pop().unwrap_or_else(|| Vec::with_capacity(100))
         }
 
-        fn release(&mut self, array: DodecetArray<100>) {
+        fn release(&mut self, mut array: Vec<u16>) {
+            array.clear();
             if self.pool.len() < 10 {
                 self.pool.push(array);
             }
@@ -246,12 +238,12 @@ fn memory_pooling() {
     let start = Instant::now();
 
     // Acquire and release arrays multiple times
-    for _ in 0..100 {
+    for i in 0..100 {
         let mut array = pool.acquire();
 
         // Use the array
-        for i in 0..100 {
-            array.set(i, Dodecet::from_hex(i as u16));
+        for j in 0..100 {
+            array.push((i * 100 + j) as u16 % 4096);
         }
 
         // Release back to pool
@@ -276,9 +268,9 @@ fn parallel_processing() {
     let data: Vec<Point3D> = (0..10_000)
         .map(|i| {
             Point3D::new(
-                Dodecet::from_hex((i % 4096) as u16),
-                Dodecet::from_hex(((i * 2) % 4096) as u16),
-                Dodecet::from_hex(((i * 3) % 4096) as u16),
+                Dodecet::from_hex((i % 4096) as u16).value(),
+                Dodecet::from_hex(((i * 2) % 4096) as u16).value(),
+                Dodecet::from_hex(((i * 3) % 4096) as u16).value(),
             )
         })
         .collect();
@@ -293,7 +285,7 @@ fn parallel_processing() {
         let chunk = chunk.to_vec();
 
         let handle = thread::spawn(move || {
-            chunk.iter().map(|p| p.x.value() as f64).sum::<f64>()
+            chunk.iter().map(|p| p.x() as f64).sum::<f64>()
         });
 
         handles.push(handle);
@@ -319,12 +311,12 @@ fn hot_path_optimization() {
     println!("   Optimizing frequently-executed code paths\n");
 
     // Simulate a hot path in a rendering loop
-    let mut points: Vec<Point3D> = (0..1_000)
+    let points: Vec<Point3D> = (0..1_000)
         .map(|i| {
             Point3D::new(
-                Dodecet::from_hex((i % 4096) as u16),
-                Dodecet::from_hex(((i * 2) % 4096) as u16),
-                Dodecet::from_hex(((i * 3) % 4096) as u16),
+                Dodecet::from_hex((i % 4096) as u16).value(),
+                Dodecet::from_hex(((i * 2) % 4096) as u16).value(),
+                Dodecet::from_hex(((i * 3) % 4096) as u16).value(),
             )
         })
         .collect();
@@ -334,15 +326,14 @@ fn hot_path_optimization() {
     // Hot path: Called millions of times per second
     for _iteration in 0..10_000 {
         // Use inline-friendly operations
-        for point in &mut points {
+        for point in &points {
             // Direct value access - avoids function call overhead
-            let x = point.x.value();
-            let y = point.y.value();
+            let x = point.x();
+            let y = point.y();
 
             // Simple computation - keeps everything in registers
-            if x > y {
-                point.x = Dodecet::from_hex((x - 1) as u16);
-            }
+            // Note: Point3D is immutable, so we demonstrate read operations
+            let _diff = if x > y { x - y } else { y - x };
         }
     }
 
