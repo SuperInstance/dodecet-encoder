@@ -676,3 +676,149 @@ The calculus functions use standard numerical approximation techniques and may n
 ---
 
 *Built with Rust's performance and safety guarantees.*
+
+---
+
+## 🔌 Integration Guide
+
+### Feature Flags
+
+The library uses Cargo feature flags for optional functionality:
+
+```toml
+[dependencies]
+dodecet-encoder = { version = "1.1", features = ["serde", "geometry", "wasm"] }
+```
+
+| Feature | Description | Dependencies Added |
+|---------|-------------|--------------------|
+| `default` | Core dodecet type, hex encoding, arrays, strings | None |
+| `serde` | Serialize/deserialize support | `serde`, `serde_json` |
+| `geometry` | 3D geometry with `nalgebra` integration | `nalgebra` |
+| `wasm` | WebAssembly bindings for browser use | `wasm-bindgen`, `js-sys`, `web-sys` |
+
+### Ecosystem Integration
+
+Dodecet-encoder is used across the SuperInstance ecosystem:
+
+```mermaid
+graph LR
+    subgraph "SuperInstance Ecosystem"
+        DE[dodecet-encoder] --> CT[constrainttheory]
+        DE --> CL[claw]
+        DE --> SM[spreadsheet-moment]
+    end
+
+    subgraph "Use Cases"
+        CT[constrainttheory<br/>Geometric state] --> |"12-bit coords"| CG[Constraint graphs]
+        CL[claw<br/>Agent positioning] --> |"12-bit cells"| CA[Cellular automata]
+        SM[spreadsheet-moment<br/>Cell coords] --> |"12-bit refs"| SC[Spreadsheet cells]
+    end
+
+    style DE fill:#4CAF50
+    style CT fill:#2196F3
+    style CL fill:#FF9800
+    style SM fill:#9C27B0
+```
+
+#### constrainttheory — Geometric Constraint Graphs
+
+```rust
+use dodecet_encoder::{Dodecet, DodecetArray};
+use dodecet_encoder::geometric::{Point3D, Vector3D};
+
+// Compact node positions in constraint graphs
+// 3 dodecets per point = 6 bytes vs 24 bytes for f64
+let nodes: Vec<Point3D> = graph.nodes()
+    .map(|n| Point3D::new(n.x, n.y, n.z))
+    .collect();
+
+// Distance constraints between nodes
+for (i, j) in graph.edges() {
+    let dist = nodes[i].distance_to(&nodes[j]);
+    assert!(dist.value() < Dodecet::new(500).unwrap().value());
+}
+```
+
+#### claw — Cellular Agent Positioning
+
+```rust
+use dodecet_encoder::Dodecet;
+
+// Each cell in a 64x64 grid fits in one dodecet (0-4095)
+let grid_size = 64; // 64x64 = 4096 cells
+let agent_x = Dodecet::new(agent.position.x)?;
+let agent_y = Dodecet::new(agent.position.y)?;
+
+// Movement within grid
+agent_x = agent_x.wrapping_add(Dodecet::new(1)?); // Move right
+```
+
+#### spreadsheet-moment — Cell Reference Encoding
+
+```rust
+use dodecet_encoder::{Dodecet, DodecetString};
+
+// Row (0-4095) and Column (0-4095) each fit in one dodecet
+let row = Dodecet::new(42)?;   // Row 42
+let col = Dodecet::new(1337)?; // Column 1337
+
+// Serialize as compact hex
+let reference = format!("{}{}", row.to_hex_string(), col.to_hex_string());
+// "02A539" — 3 bytes instead of 8 bytes for two u16
+```
+
+### WASM Integration
+
+The library ships WebAssembly bindings for browser use:
+
+```html
+<script type="module">
+import init, { Dodecet, Point3D } from './pkg/dodecet_encoder.js';
+
+await init();
+
+const d = new Dodecet(0xABC);
+console.log(d.to_hex_string()); // "ABC"
+console.log(d.nibble(0));        // 12
+console.log(d.nibble(1));        // 11
+console.log(d.nibble(2));        // 10
+
+const p1 = new Point3D(0x100, 0x200, 0x300);
+const p2 = new Point3D(0x400, 0x500, 0x600);
+console.log(p1.distanceTo(p2));
+</script>
+```
+
+Build the WASM package:
+
+```bash
+cd wasm
+wasm-pack build --target web --out-dir pkg
+```
+
+### SIMD Acceleration
+
+The `simd` module provides batch operations using platform SIMD intrinsics:
+
+```rust
+use dodecet_encoder::simd;
+
+// Process 16 dodecets in parallel using SIMD
+let inputs: [u16; 16] = [/* ... */];
+let results = simd::add_batch(&inputs, &offsets);
+```
+
+### Advanced: Constraint Theory Integration
+
+The `pythagorean_snapping` example demonstrates using dodecet coordinates with Pythagorean triple snapping for geometric constraint systems:
+
+```bash
+cargo run --example pythagorean_snapping
+```
+
+This creates constraint graphs where edge lengths snap to Pythagorean triples (3-4-5, 5-12-13, etc.) for integer-coordinate geometric reasoning.
+
+---
+
+<img src="callsign1.jpg" width="128" alt="callsign">
