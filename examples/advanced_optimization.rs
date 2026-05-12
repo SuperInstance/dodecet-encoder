@@ -4,10 +4,7 @@
 //! including SIMD operations, memory pooling, batch processing, and cache-friendly
 //! data structures.
 
-use dodecet_encoder::{
-    dodecet::Dodecet,
-    geometric::Point3D,
-};
+use dodecet_encoder::{dodecet::Dodecet, geometric::Point3D};
 use std::time::Instant;
 
 fn main() {
@@ -78,8 +75,10 @@ fn batch_processing_optimization() {
     println!("   Created {} points in {:?}", points.len(), creation_time);
     println!("   Processed in {:?}", processing_time);
     println!("   Sum: x={}, y={}, z={}", sum_x, sum_y, sum_z);
-    println!("   Throughput: {:.2} points/sec\n",
-             points.len() as f64 / processing_time.as_secs_f64());
+    println!(
+        "   Throughput: {:.2} points/sec\n",
+        points.len() as f64 / processing_time.as_secs_f64()
+    );
 }
 
 /// Example 2: Cache-friendly data structures
@@ -170,8 +169,10 @@ fn simd_friendly_operations() {
     println!("   Processed 1024 values in {:?}", elapsed);
     println!("   Sum: {}", sum);
     println!("   Chunked processing enables compiler auto-vectorization");
-    println!("   Throughput: {:.2} values/sec\n",
-             1024.0 / elapsed.as_secs_f64());
+    println!(
+        "   Throughput: {:.2} values/sec\n",
+        1024.0 / elapsed.as_secs_f64()
+    );
 }
 
 /// Example 4: Zero-copy parsing
@@ -198,11 +199,14 @@ fn zero_copy_parsing() {
     println!("   Parsed '{}' in {:?}", hex_data, parse_time);
     println!("   Created {} dodecets", dodecets.len());
     println!("   Zero-copy: No intermediate String allocations");
-    println!("   Each dodecet: {}\n",
-             dodecets.iter()
-                    .map(|d| format!("{:03X}", d))
-                    .collect::<Vec<_>>()
-                    .join(", "));
+    println!(
+        "   Each dodecet: {}\n",
+        dodecets
+            .iter()
+            .map(|d| format!("{:03X}", d))
+            .collect::<Vec<_>>()
+            .join(", ")
+    );
 }
 
 /// Example 5: Memory pooling strategies
@@ -284,9 +288,7 @@ fn parallel_processing() {
     for chunk in data.chunks(chunk_size) {
         let chunk = chunk.to_vec();
 
-        let handle = thread::spawn(move || {
-            chunk.iter().map(|p| p.x() as f64).sum::<f64>()
-        });
+        let handle = thread::spawn(move || chunk.iter().map(|p| p.x() as f64).sum::<f64>());
 
         handles.push(handle);
     }
@@ -340,10 +342,14 @@ fn hot_path_optimization() {
     let elapsed = start.elapsed();
 
     println!("   Hot path executed 10,000 iterations in {:?}", elapsed);
-    println!("   Total operations: {} million point updates",
-             10_000 * points.len() / 1_000_000);
-    println!("   Throughput: {:.2} million updates/sec\n",
-             (10_000 * points.len()) as f64 / elapsed.as_secs_f64() / 1_000_000.0);
+    println!(
+        "   Total operations: {} million point updates",
+        10_000 * points.len() / 1_000_000
+    );
+    println!(
+        "   Throughput: {:.2} million updates/sec\n",
+        (10_000 * points.len()) as f64 / elapsed.as_secs_f64() / 1_000_000.0
+    );
 }
 
 /// Example 8: Memory layout optimization
@@ -354,24 +360,33 @@ fn memory_layout_optimization() {
     // Non-optimal layout (potentially padded)
     #[repr(C)]
     struct NonOptimal {
-        a: Dodecet,     // 2 bytes
-        b: u64,         // 8 bytes
-        c: Dodecet,     // 2 bytes
+        a: Dodecet, // 2 bytes
+        b: u64,     // 8 bytes
+        c: Dodecet, // 2 bytes
     } // Total: 24 bytes (with padding)
 
     // Optimal layout (packed efficiently)
     #[repr(C)]
     struct Optimal {
-        b: u64,         // 8 bytes
-        a: Dodecet,     // 2 bytes
-        c: Dodecet,     // 2 bytes
+        b: u64,     // 8 bytes
+        a: Dodecet, // 2 bytes
+        c: Dodecet, // 2 bytes
     } // Total: 12 bytes (with minimal padding)
 
-    println!("   Non-optimal layout: {} bytes", std::mem::size_of::<NonOptimal>());
-    println!("   Optimal layout: {} bytes", std::mem::size_of::<Optimal>());
-    println!("   Memory savings: {}%",
-             (std::mem::size_of::<NonOptimal>() - std::mem::size_of::<Optimal>()) as f64
-             / std::mem::size_of::<NonOptimal>() as f64 * 100.0);
+    println!(
+        "   Non-optimal layout: {} bytes",
+        std::mem::size_of::<NonOptimal>()
+    );
+    println!(
+        "   Optimal layout: {} bytes",
+        std::mem::size_of::<Optimal>()
+    );
+    println!(
+        "   Memory savings: {}%",
+        (std::mem::size_of::<NonOptimal>() - std::mem::size_of::<Optimal>()) as f64
+            / std::mem::size_of::<NonOptimal>() as f64
+            * 100.0
+    );
 
     // Demonstrate with arrays
     let start = Instant::now();
@@ -387,9 +402,14 @@ fn memory_layout_optimization() {
 
     let allocation_time = start.elapsed();
 
-    println!("   Allocated 10,000 optimal structs in {:?}", allocation_time);
-    println!("   Total memory: {} KB\n",
-             (optimal.len() * std::mem::size_of::<Optimal>()) / 1024);
+    println!(
+        "   Allocated 10,000 optimal structs in {:?}",
+        allocation_time
+    );
+    println!(
+        "   Total memory: {} KB\n",
+        (optimal.len() * std::mem::size_of::<Optimal>()) / 1024
+    );
 
     println!("=== Performance Optimization Summary ===");
     println!("Key takeaways:");

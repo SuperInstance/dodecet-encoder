@@ -303,7 +303,8 @@ fn main() {
     println!("   Standard Graph (f64):");
     println!("     - Vertex: {} bytes", std::mem::size_of::<Point3D>());
     println!("     - Edge: {} bytes", std::mem::size_of::<Edge>());
-    println!("     - Triangle: {} bytes",
+    println!(
+        "     - Triangle: {} bytes",
         3 * std::mem::size_of::<Point3D>() + 3 * std::mem::size_of::<Edge>()
     );
 
@@ -314,7 +315,10 @@ fn main() {
 
     let memory_size = 3 * std::mem::size_of::<Point3D>() + 3 * std::mem::size_of::<Edge>();
     let compact_size = 3 * 6 + 3 * 4;
-    println!("     - Savings: {:.1}%", 100.0 * (1.0 - compact_size as f64 / memory_size as f64));
+    println!(
+        "     - Savings: {:.1}%",
+        100.0 * (1.0 - compact_size as f64 / memory_size as f64)
+    );
     println!();
 
     // Example 6: Large structure demonstration
@@ -369,7 +373,8 @@ fn main() {
 
     let duration = start.elapsed();
     println!("   Checked rigidity {} times in {:?}", iterations, duration);
-    println!("   Average: {:.2} μs/check",
+    println!(
+        "   Average: {:.2} μs/check",
         duration.as_micros() as f64 / iterations as f64
     );
     println!();

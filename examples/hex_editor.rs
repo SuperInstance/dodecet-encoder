@@ -4,7 +4,7 @@
 //!
 //! Run with: cargo run --example hex_editor
 
-use dodecet_encoder::{Dodecet, hex};
+use dodecet_encoder::{hex, Dodecet};
 
 fn main() {
     println!("=== Dodecet Hex Editor Example ===\n");
@@ -34,7 +34,11 @@ fn main() {
         .chunks(3)
         .flat_map(|chunk| {
             let val = u16::from_str_radix(std::str::from_utf8(chunk).unwrap(), 16).unwrap();
-            vec![(val >> 4) as u8, ((val & 0x0F) << 4 | (val >> 8)) as u8, (val & 0xFF) as u8]
+            vec![
+                (val >> 4) as u8,
+                ((val & 0x0F) << 4 | (val >> 8)) as u8,
+                (val & 0xFF) as u8,
+            ]
         })
         .collect();
 
@@ -99,8 +103,14 @@ fn main() {
     // Demonstrate packing efficiency
     println!("Storage Efficiency:");
     println!("  Traditional 8-bit: {} bytes for 5 values", 5);
-    println!("  12-bit dodecet: {} bytes for 5 values (packed)", (5 * 12 + 7) / 8);
-    println!("  Space saved: {:.1}%", (1.0 - (5 * 12) as f64 / (5.0 * 16.0)) * 100.0);
+    println!(
+        "  12-bit dodecet: {} bytes for 5 values (packed)",
+        (5 * 12 + 7) / 8
+    );
+    println!(
+        "  Space saved: {:.1}%",
+        (1.0 - (5 * 12) as f64 / (5.0 * 16.0)) * 100.0
+    );
 
     println!("\n=== Hex Editor Example Complete ===");
 }

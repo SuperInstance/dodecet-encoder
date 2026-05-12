@@ -3,9 +3,9 @@
 // Comprehensive edge case testing to ensure robustness and reliability
 
 use dodecet_encoder::{
-    Dodecet, DodecetArray, DodecetString,
-    geometric::{Point3D, Vector3D, Transform3D},
     calculus,
+    geometric::{Point3D, Transform3D, Vector3D},
+    Dodecet, DodecetArray, DodecetString,
 };
 
 #[test]
@@ -355,6 +355,6 @@ fn test_bitwise_operations_edge_cases() {
     assert_eq!((a ^ a).value(), 0);
 
     // Test NOT
-    assert_eq! ((!a).value(), 0);
-    assert_eq! ((!b).value(), 0xFFF);
+    assert_eq!((!a).value(), 0);
+    assert_eq!((!b).value(), 0xFFF);
 }

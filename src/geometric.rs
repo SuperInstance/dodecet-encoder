@@ -164,11 +164,7 @@ impl Vector3D {
         };
 
         Vector3D {
-            components: DodecetArray::from_slice(&[
-                to_dodecet(x),
-                to_dodecet(y),
-                to_dodecet(z),
-            ]),
+            components: DodecetArray::from_slice(&[to_dodecet(x), to_dodecet(y), to_dodecet(z)]),
         }
     }
 
@@ -204,7 +200,11 @@ impl Vector3D {
         if mag == 0.0 {
             return (0.0, 0.0, 0.0);
         }
-        (self.x() as f64 / mag, self.y() as f64 / mag, self.z() as f64 / mag)
+        (
+            self.x() as f64 / mag,
+            self.y() as f64 / mag,
+            self.z() as f64 / mag,
+        )
     }
 
     /// Dot product with another vector
@@ -295,9 +295,18 @@ impl Transform3D {
 
         Transform3D {
             matrix: DodecetArray::from_slice(&[
-                0x001, 0x000, 0x000, to_dodecet(dx), // Row 1
-                0x000, 0x001, 0x000, to_dodecet(dy), // Row 2
-                0x000, 0x000, 0x001, to_dodecet(dz), // Row 3
+                0x001,
+                0x000,
+                0x000,
+                to_dodecet(dx), // Row 1
+                0x000,
+                0x001,
+                0x000,
+                to_dodecet(dy), // Row 2
+                0x000,
+                0x000,
+                0x001,
+                to_dodecet(dz), // Row 3
             ]),
         }
     }
@@ -312,9 +321,18 @@ impl Transform3D {
 
         Transform3D {
             matrix: DodecetArray::from_slice(&[
-                to_dodecet(sx), 0x000, 0x000, 0x000, // Row 1
-                0x000, to_dodecet(sy), 0x000, 0x000, // Row 2
-                0x000, 0x000, to_dodecet(sz), 0x000, // Row 3
+                to_dodecet(sx),
+                0x000,
+                0x000,
+                0x000, // Row 1
+                0x000,
+                to_dodecet(sy),
+                0x000,
+                0x000, // Row 2
+                0x000,
+                0x000,
+                to_dodecet(sz),
+                0x000, // Row 3
             ]),
         }
     }
@@ -329,9 +347,18 @@ impl Transform3D {
 
         Transform3D {
             matrix: DodecetArray::from_slice(&[
-                to_dodecet(1.0), 0x000, 0x000, 0x000,           // Row 1
-                0x000, to_dodecet(cos_a), to_dodecet(-sin_a), 0x000, // Row 2
-                0x000, to_dodecet(sin_a), to_dodecet(cos_a), 0x000,   // Row 3
+                to_dodecet(1.0),
+                0x000,
+                0x000,
+                0x000, // Row 1
+                0x000,
+                to_dodecet(cos_a),
+                to_dodecet(-sin_a),
+                0x000, // Row 2
+                0x000,
+                to_dodecet(sin_a),
+                to_dodecet(cos_a),
+                0x000, // Row 3
             ]),
         }
     }
@@ -346,9 +373,18 @@ impl Transform3D {
 
         Transform3D {
             matrix: DodecetArray::from_slice(&[
-                to_dodecet(cos_a), 0x000, to_dodecet(sin_a), 0x000,   // Row 1
-                0x000, to_dodecet(1.0), 0x000, 0x000,                 // Row 2
-                to_dodecet(-sin_a), 0x000, to_dodecet(cos_a), 0x000,  // Row 3
+                to_dodecet(cos_a),
+                0x000,
+                to_dodecet(sin_a),
+                0x000, // Row 1
+                0x000,
+                to_dodecet(1.0),
+                0x000,
+                0x000, // Row 2
+                to_dodecet(-sin_a),
+                0x000,
+                to_dodecet(cos_a),
+                0x000, // Row 3
             ]),
         }
     }
@@ -363,9 +399,18 @@ impl Transform3D {
 
         Transform3D {
             matrix: DodecetArray::from_slice(&[
-                to_dodecet(cos_a), to_dodecet(-sin_a), 0x000, 0x000,  // Row 1
-                to_dodecet(sin_a), to_dodecet(cos_a), 0x000, 0x000,   // Row 2
-                0x000, 0x000, to_dodecet(1.0), 0x000,                 // Row 3
+                to_dodecet(cos_a),
+                to_dodecet(-sin_a),
+                0x000,
+                0x000, // Row 1
+                to_dodecet(sin_a),
+                to_dodecet(cos_a),
+                0x000,
+                0x000, // Row 2
+                0x000,
+                0x000,
+                to_dodecet(1.0),
+                0x000, // Row 3
             ]),
         }
     }
@@ -508,7 +553,7 @@ pub mod shapes {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::geometric::shapes::{Triangle, Box3D};
+    use crate::geometric::shapes::{Box3D, Triangle};
 
     #[test]
     fn test_point3d() {

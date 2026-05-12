@@ -372,11 +372,7 @@ where
 /// // First harmonic should be strong
 /// assert!(coeffs[1].1 > 0.9); // High sine coefficient
 /// ```
-pub fn fourier_coefficients<F>(
-    f: &F,
-    period: f64,
-    n_harmonics: usize,
-) -> Vec<(f64, f64)>
+pub fn fourier_coefficients<F>(f: &F, period: f64, n_harmonics: usize) -> Vec<(f64, f64)>
 where
     F: Fn(f64) -> f64,
 {
@@ -388,14 +384,16 @@ where
             0.0,
             period,
             1000,
-        ) * 2.0 / period;
+        ) * 2.0
+            / period;
 
         let b_n = integral(
             |x| f(x) * (2.0 * PI * n as f64 * x / period).sin(),
             0.0,
             period,
             1000,
-        ) * 2.0 / period;
+        ) * 2.0
+            / period;
 
         coeffs.push((a_n, b_n));
     }

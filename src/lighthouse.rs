@@ -175,11 +175,11 @@ impl Default for Lighthouse {
 impl Lighthouse {
     pub fn new() -> Self {
         let mut capacity = HashMap::new();
-        capacity.insert(ModelTier::Claude, 1.0);    // 100% daily budget
-        capacity.insert(ModelTier::GLM, 1.0);       // 100% monthly budget
-        capacity.insert(ModelTier::Seed, 1.0);       // Effectively unlimited
-        capacity.insert(ModelTier::DeepSeek, 1.0);   // Effectively unlimited
-        capacity.insert(ModelTier::Hermes, 1.0);     // Effectively unlimited
+        capacity.insert(ModelTier::Claude, 1.0); // 100% daily budget
+        capacity.insert(ModelTier::GLM, 1.0); // 100% monthly budget
+        capacity.insert(ModelTier::Seed, 1.0); // Effectively unlimited
+        capacity.insert(ModelTier::DeepSeek, 1.0); // Effectively unlimited
+        capacity.insert(ModelTier::Hermes, 1.0); // Effectively unlimited
 
         Lighthouse {
             agents: HashMap::new(),
@@ -232,7 +232,7 @@ impl Lighthouse {
         }
 
         agent.updated_at = current_timestamp();
-        Some(self.agents.get(room_id)?)
+        self.agents.get(room_id)
     }
 
     /// GATE: Safety and alignment check on agent output.
@@ -290,7 +290,13 @@ impl Lighthouse {
     /// Find cheapest appropriate model for a task type.
     fn cheapest_appropriate(&self, task_type: TaskType) -> ModelTier {
         // Try from cheapest to most expensive
-        let tiers = [ModelTier::Seed, ModelTier::Hermes, ModelTier::DeepSeek, ModelTier::GLM, ModelTier::Claude];
+        let tiers = [
+            ModelTier::Seed,
+            ModelTier::Hermes,
+            ModelTier::DeepSeek,
+            ModelTier::GLM,
+            ModelTier::Claude,
+        ];
 
         for &tier in &tiers {
             if tier.appropriate_for(task_type) {
@@ -308,7 +314,8 @@ impl Lighthouse {
 
     /// List active agents
     pub fn active_agents(&self) -> Vec<&AgentRoom> {
-        self.agents.values()
+        self.agents
+            .values()
             .filter(|a| a.status == AgentStatus::Running || a.status == AgentStatus::Seeding)
             .collect()
     }
@@ -326,7 +333,9 @@ impl Lighthouse {
             let bar: String = "█".repeat(bar_len) + &"░".repeat(20 - bar_len);
             lines.push(format!(
                 "  {:?}: [{}] {:.0}% remaining",
-                tier, bar, remaining * 100.0
+                tier,
+                bar,
+                remaining * 100.0
             ));
         }
         lines.push(format!("  Active agents: {}", self.active_agents().len()));
@@ -337,7 +346,6 @@ impl Lighthouse {
 // ─── Helper functions ─────────────────────────────────────────
 
 fn simple_hash(s: &str) -> String {
-    use std::fmt::Write;
     let mut hash: u64 = 5381;
     for b in s.bytes() {
         hash = hash.wrapping_mul(33).wrapping_add(b as u64);
@@ -354,12 +362,21 @@ fn current_timestamp() -> u64 {
 
 fn contains_credentials(s: &str) -> bool {
     let lower = s.to_lowercase();
-    lower.contains("api_key=") || lower.contains("password=") || lower.contains("secret=") ||
-    lower.contains("token=") || lower.contains("bearer ")
+    lower.contains("api_key=")
+        || lower.contains("password=")
+        || lower.contains("secret=")
+        || lower.contains("token=")
+        || lower.contains("bearer ")
 }
 
 fn contains_external_action(s: &str) -> bool {
-    let markers = ["send_email", "post_tweet", "git push", "npm publish", "deploy"];
+    let markers = [
+        "send_email",
+        "post_tweet",
+        "git push",
+        "npm publish",
+        "deploy",
+    ];
     markers.iter().any(|m| s.contains(m))
 }
 
@@ -428,7 +445,10 @@ mod tests {
     fn test_gate_rejects_overclaims() {
         let mut lh = Lighthouse::new();
         let agent = lh.orient("task", TaskType::Drafting);
-        let result = lh.gate(&agent.room_id, "We have proven that all lattices are perfect");
+        let result = lh.gate(
+            &agent.room_id,
+            "We have proven that all lattices are perfect",
+        );
         assert!(matches!(result, GateResult::Rejected(_)));
     }
 

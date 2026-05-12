@@ -8,10 +8,10 @@ use dodecet_encoder::{Dodecet, DodecetArray, Point3D, Vector3D};
 /// Represents the state of a cellular agent
 #[derive(Debug, Clone)]
 struct AgentState {
-    position: Point3D,      // 3 dodecets (6 bytes)
-    velocity: Vector3D,     // 3 dodecets (6 bytes)
-    status: Dodecet,        // 1 dodecet (2 bytes)
-    energy: Dodecet,        // 1 dodecet (2 bytes)
+    position: Point3D,          // 3 dodecets (6 bytes)
+    velocity: Vector3D,         // 3 dodecets (6 bytes)
+    status: Dodecet,            // 1 dodecet (2 bytes)
+    energy: Dodecet,            // 1 dodecet (2 bytes)
     equipment: DodecetArray<4>, // 4 dodecets (8 bytes)
 }
 
@@ -52,10 +52,10 @@ impl AgentState {
     /// Calculate memory efficiency vs traditional struct
     fn memory_savings(&self) -> (usize, usize, f64) {
         let dodecet_size = 16; // 8 dodecets * 2 bytes
-        let traditional_size = std::mem::size_of::<Point3D>() +
-                              std::mem::size_of::<Vector3D>() +
-                              std::mem::size_of::<Dodecet>() * 2 +
-                              std::mem::size_of::<DodecetArray<4>>();
+        let traditional_size = std::mem::size_of::<Point3D>()
+            + std::mem::size_of::<Vector3D>()
+            + std::mem::size_of::<Dodecet>() * 2
+            + std::mem::size_of::<DodecetArray<4>>();
         let savings = 100.0 * (1.0 - (dodecet_size as f64 / traditional_size as f64));
         (dodecet_size, traditional_size, savings)
     }
@@ -120,14 +120,13 @@ fn main() {
     let creation_time = start.elapsed();
 
     let start = std::time::Instant::now();
-    let _states: Vec<[Dodecet; 8]> = agents.iter()
-        .map(|a| a.serialize())
-        .collect();
+    let _states: Vec<[Dodecet; 8]> = agents.iter().map(|a| a.serialize()).collect();
     let serial_time = start.elapsed();
 
     println!("   Creation time: {:?}", creation_time);
     println!("   Serialization time: {:?}", serial_time);
-    println!("   Total memory: {} bytes ({} KB)",
+    println!(
+        "   Total memory: {} bytes ({} KB)",
         1000 * dodecet_size,
         (1000 * dodecet_size) / 1024
     );
@@ -137,7 +136,8 @@ fn main() {
     let query_point = Point3D::new(0x105, 0x205, 0x305);
     let radius = 0x50;
 
-    let neighbors: Vec<&AgentState> = agents.iter()
+    let neighbors: Vec<&AgentState> = agents
+        .iter()
         .filter(|a| a.position.distance_to(&query_point) < radius as f64)
         .take(5)
         .collect();
@@ -146,7 +146,8 @@ fn main() {
     println!("   Radius: {}", radius);
     println!("   Found {} neighbors (showing first 5):", neighbors.len());
     for (i, agent) in neighbors.iter().enumerate() {
-        println!("     {}: {:?} (dist: {:.2})",
+        println!(
+            "     {}: {:?} (dist: {:.2})",
             i + 1,
             agent.position,
             agent.position.distance_to(&query_point)
@@ -180,9 +181,12 @@ fn main() {
     println!("   Velocity: {:?}", moving_agent.velocity);
 
     for step in 1..=5 {
-        let new_x = (moving_agent.position.x() as i32 + moving_agent.velocity.x() as i32) as u16 % 4096;
-        let new_y = (moving_agent.position.y() as i32 + moving_agent.velocity.y() as i32) as u16 % 4096;
-        let new_z = (moving_agent.position.z() as i32 + moving_agent.velocity.z() as i32) as u16 % 4096;
+        let new_x =
+            (moving_agent.position.x() as i32 + moving_agent.velocity.x() as i32) as u16 % 4096;
+        let new_y =
+            (moving_agent.position.y() as i32 + moving_agent.velocity.y() as i32) as u16 % 4096;
+        let new_z =
+            (moving_agent.position.z() as i32 + moving_agent.velocity.z() as i32) as u16 % 4096;
         moving_agent.position = Point3D::new(new_x, new_y, new_z);
         println!("   Step {}: {:?}", step, moving_agent.position);
     }
@@ -204,8 +208,12 @@ fn main() {
         let new_energy = current.saturating_sub(consumption);
         working_agent.energy = Dodecet::new(new_energy).unwrap();
 
-        println!("   Cycle {}: consumed {}, remaining: {}",
-            cycle, consumption, working_agent.energy.value());
+        println!(
+            "   Cycle {}: consumed {}, remaining: {}",
+            cycle,
+            consumption,
+            working_agent.energy.value()
+        );
 
         if working_agent.energy.value() == 0 {
             println!("   Agent depleted at cycle {}", cycle);
@@ -234,7 +242,8 @@ fn main() {
     println!("\n10. Large-Scale Simulation Summary:");
     println!("   Agents simulated: 1000");
     println!("   Total state memory: {} KB", (1000 * dodecet_size) / 1024);
-    println!("   Average serialization time: {:.2} ns/agent",
+    println!(
+        "   Average serialization time: {:.2} ns/agent",
         serial_time.as_nanos() / 1000
     );
     println!("   Memory vs traditional: {:.1}% reduction", savings);

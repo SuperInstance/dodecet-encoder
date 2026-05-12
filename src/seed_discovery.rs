@@ -36,8 +36,8 @@
 //! enough variation that the PATTERN of good responses becomes visible.
 //! The tile captures that pattern, not any individual response.
 
-use crate::eisenstein::{EisensteinConstraint, SnapResult, COVERING_RADIUS};
-use crate::temporal::{TemporalAgent, AgentAction, FunnelPhase, ChiralityState};
+use crate::eisenstein::{EisensteinConstraint, COVERING_RADIUS};
+use crate::temporal::{AgentAction, ChiralityState, TemporalAgent};
 use std::collections::HashMap;
 
 /// Maximum iterations per seed run
@@ -242,20 +242,24 @@ impl SeedDiscovery {
         let r = 0.5; // variation radius
 
         TileParams {
-            decay_rate: (base.decay_rate + r * (phase * 1.0).sin()).max(0.1).min(10.0),
+            decay_rate: (base.decay_rate + r * (phase * 1.0).sin())
+                .max(0.1)
+                .min(10.0),
             prediction_horizon: (base.prediction_horizon as f64 + 4.0 * (phase * 2.0).sin())
                 .round()
                 .max(1.0)
                 .min(16.0) as usize,
-            anomaly_sigma: (base.anomaly_sigma + r * 2.0 * (phase * 3.0).sin()).max(0.5).min(5.0),
+            anomaly_sigma: (base.anomaly_sigma + r * 2.0 * (phase * 3.0).sin())
+                .max(0.5)
+                .min(5.0),
             learning_rate: (base.learning_rate + 0.3 * (phase * 5.0).sin())
                 .max(0.01)
                 .min(1.0),
             chirality_lock_threshold: ((base.chirality_lock_threshold as f64
                 + 200.0 * (phase * 7.0).sin())
-                .round()
-                .max(100.0)
-                .min(900.0)) as u16,
+            .round()
+            .max(100.0)
+            .min(900.0)) as u16,
             merge_trust: (base.merge_trust + 0.3 * (phase * 11.0).sin())
                 .max(0.0)
                 .min(1.0),
@@ -269,7 +273,11 @@ impl SeedDiscovery {
     pub fn crystallize(&self) -> DiscoveryTile {
         let top_scores: Vec<&IterationScore> = {
             let mut sorted: Vec<&IterationScore> = self.iterations.iter().collect();
-            sorted.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+            sorted.sort_by(|a, b| {
+                b.score
+                    .partial_cmp(&a.score)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            });
             sorted.into_iter().take(10).collect()
         };
 
@@ -288,7 +296,8 @@ impl SeedDiscovery {
         // Compute entropy of the discovery process
         let scores: Vec<f64> = self.iterations.iter().map(|i| i.score).collect();
         let mean_score = scores.iter().sum::<f64>() / scores.len() as f64;
-        let variance = scores.iter().map(|s| (s - mean_score).powi(2)).sum::<f64>() / scores.len() as f64;
+        let variance =
+            scores.iter().map(|s| (s - mean_score).powi(2)).sum::<f64>() / scores.len() as f64;
         let discovery_entropy = (variance.sqrt() / mean_score).min(1.0);
 
         // Build the pattern string (the inner logic)
@@ -480,13 +489,7 @@ pub fn noisy_sensor(steps: usize, center: (f64, f64), noise: f64) -> Vec<(f64, f
 /// Generate a test trajectory (step function — sudden jump)
 pub fn step_trajectory(steps: usize, jump_at: usize) -> Vec<(f64, f64)> {
     (0..steps)
-        .map(|i| {
-            if i < jump_at {
-                (0.1, 0.1)
-            } else {
-                (2.0, 2.0)
-            }
-        })
+        .map(|i| if i < jump_at { (0.1, 0.1) } else { (2.0, 2.0) })
         .collect()
 }
 

@@ -8,7 +8,8 @@ use std::collections::HashMap;
 
 /// Calculate Shannon entropy of a discrete probability distribution
 fn shannon_entropy(probabilities: &HashMap<u16, f64>) -> f64 {
-    probabilities.values()
+    probabilities
+        .values()
         .filter(|&&p| p > 0.0)
         .map(|&p| -p * p.log2())
         .sum()
@@ -23,25 +24,21 @@ fn probability_distribution(dodecets: &[Dodecet]) -> HashMap<u16, f64> {
         *counts.entry(d.value()).or_insert(0.0) += 1.0;
     }
 
-    counts.iter()
-        .map(|(k, v)| (*k, v / total))
-        .collect()
+    counts.iter().map(|(k, v)| (*k, v / total)).collect()
 }
 
 /// Calculate joint entropy of multiple variables
 #[allow(dead_code)]
 fn joint_entropy(distributions: &[HashMap<u16, f64>]) -> f64 {
     // Approximate joint entropy by assuming independence
-    distributions.iter()
-        .map(|dist| shannon_entropy(dist))
-        .sum()
+    distributions.iter().map(|dist| shannon_entropy(dist)).sum()
 }
 
 /// Calculate mutual information between two variables
 fn mutual_information(
     dist_x: &HashMap<u16, f64>,
     dist_y: &HashMap<u16, f64>,
-    joint: &HashMap<(u16, u16), f64>
+    joint: &HashMap<(u16, u16), f64>,
 ) -> f64 {
     let mut mi = 0.0;
 
@@ -83,19 +80,22 @@ impl PointCloud {
     }
 
     fn x_dodecets(&self) -> Vec<Dodecet> {
-        self.points.iter()
+        self.points
+            .iter()
             .map(|p| Dodecet::new(p.x()).unwrap())
             .collect()
     }
 
     fn y_dodecets(&self) -> Vec<Dodecet> {
-        self.points.iter()
+        self.points
+            .iter()
             .map(|p| Dodecet::new(p.y()).unwrap())
             .collect()
     }
 
     fn z_dodecets(&self) -> Vec<Dodecet> {
-        self.points.iter()
+        self.points
+            .iter()
             .map(|p| Dodecet::new(p.z()).unwrap())
             .collect()
     }
@@ -109,9 +109,7 @@ impl PointCloud {
             *counts.entry(key).or_insert(0.0) += 1.0;
         }
 
-        counts.iter()
-            .map(|(k, v)| (*k, v / total))
-            .collect()
+        counts.iter().map(|(k, v)| (*k, v / total)).collect()
     }
 
     fn spatial_entropy(&self) -> (f64, f64, f64) {
@@ -158,9 +156,7 @@ fn main() {
 
     // 1. Uniform distribution (maximum entropy)
     println!("1. Uniform Distribution (Maximum Entropy):");
-    let uniform: Vec<Dodecet> = (0..4096)
-        .map(|i| Dodecet::new(i).unwrap())
-        .collect();
+    let uniform: Vec<Dodecet> = (0..4096).map(|i| Dodecet::new(i).unwrap()).collect();
 
     let uniform_dist = probability_distribution(&uniform);
     let uniform_entropy = shannon_entropy(&uniform_dist);
@@ -173,7 +169,13 @@ fn main() {
     // 2. Binary distribution
     println!("\n2. Binary Distribution:");
     let binary: Vec<Dodecet> = (0..1000)
-        .map(|i| if i % 2 == 0 { Dodecet::new(0).unwrap() } else { Dodecet::new(1).unwrap() })
+        .map(|i| {
+            if i % 2 == 0 {
+                Dodecet::new(0).unwrap()
+            } else {
+                Dodecet::new(1).unwrap()
+            }
+        })
         .collect();
 
     let binary_dist = probability_distribution(&binary);
@@ -297,28 +299,28 @@ fn main() {
 
     println!("   Perfectly Correlated X and Y:");
     println!("     Mutual Information: {:.4} bits", mi_correlated);
-    println!("     Expected: {:.4} bits (H(X) = H(Y))", shannon_entropy(&corr_dist_x));
+    println!(
+        "     Expected: {:.4} bits (H(X) = H(Y))",
+        shannon_entropy(&corr_dist_x)
+    );
 
     // 7. Quantization effects
     println!("\n7. Quantization Information Loss:");
 
-    let original: Vec<u16> = (0..1000)
-        .map(|i| (i * 17) % 4096)
-        .collect();
+    let original: Vec<u16> = (0..1000).map(|i| (i * 17) % 4096).collect();
 
-    let quantized_64: Vec<u16> = original.iter()
-        .map(|&v| (v / 64) * 64)
-        .collect();
+    let quantized_64: Vec<u16> = original.iter().map(|&v| (v / 64) * 64).collect();
 
-    let quantized_256: Vec<u16> = original.iter()
-        .map(|&v| (v / 256) * 256)
-        .collect();
+    let quantized_256: Vec<u16> = original.iter().map(|&v| (v / 256) * 256).collect();
 
     let loss_64 = quantization_information_gain(&original, &quantized_64);
     let loss_256 = quantization_information_gain(&original, &quantized_256);
 
     let dodecets: Vec<Dodecet> = original.iter().map(|&v| Dodecet::new(v).unwrap()).collect();
-    println!("   Original entropy: {:.4} bits", shannon_entropy(&probability_distribution(&dodecets)));
+    println!(
+        "   Original entropy: {:.4} bits",
+        shannon_entropy(&probability_distribution(&dodecets))
+    );
     println!("   Quantized to 64-unit bins:");
     println!("     Information loss: {:.4} bits", loss_64);
     println!("   Quantized to 256-unit bins:");
@@ -333,7 +335,10 @@ fn main() {
     println!("   Information gain: 4 bits (50% more)");
 
     let gain_12_vs_8 = 12.0 - 8.0;
-    println!("   Additional information: {:.1} bits per value", gain_12_vs_8);
+    println!(
+        "   Additional information: {:.1} bits per value",
+        gain_12_vs_8
+    );
 
     // 9. Entropy rate of cellular automaton
     println!("\n9. Cellular Automaton Entropy Rate:");
@@ -341,8 +346,8 @@ fn main() {
     // Simple rule: next = (current + previous) mod 4096
     let mut ca = vec![Dodecet::new(1).unwrap(); 100];
     for i in 2..100 {
-        let prev = ca[i-2].value();
-        let curr = ca[i-1].value();
+        let prev = ca[i - 2].value();
+        let curr = ca[i - 1].value();
         ca[i] = Dodecet::new((prev + curr) % 4096).unwrap();
     }
 

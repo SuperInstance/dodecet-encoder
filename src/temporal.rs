@@ -46,7 +46,6 @@ pub struct TemporalAgent {
     history_count: usize,
 
     // === FINESSE PARAMETERS (agentic controls) ===
-
     /// Deadband decay rate. Controls how fast the funnel narrows.
     /// Higher = faster convergence but more overshoot.
     /// Default: 1.0 (square-root rate)
@@ -79,7 +78,6 @@ pub struct TemporalAgent {
     pub merge_trust: f64,
 
     // === DERIVED STATE (computed from history) ===
-
     /// Running mean of error levels
     error_mean: f64,
     /// Running variance of error levels
@@ -213,7 +211,11 @@ impl TemporalAgent {
 
         // Layer 1: Control — compute PID components
         let _proportional = error_norm;
-        self.precision_energy += if snap.error > 0.0 { 1.0 / snap.error } else { 1000.0 };
+        self.precision_energy += if snap.error > 0.0 {
+            1.0 / snap.error
+        } else {
+            1000.0
+        };
         self.update_convergence_rate(error_norm);
 
         // Layer 2: Prediction — compare with prediction
@@ -232,12 +234,13 @@ impl TemporalAgent {
         self.update_phase(error_norm);
 
         // Store in history
-        self.history[self.history_pos] = Some(snap.clone());
+        self.history[self.history_pos] = Some(snap);
         self.history_pos = (self.history_pos + 1) % HISTORY_SIZE;
         self.history_count += 1;
 
         // Determine action
-        let is_anomaly = self.prediction_error > self.anomaly_sigma * self.error_var.sqrt().max(0.01);
+        let is_anomaly =
+            self.prediction_error > self.anomaly_sigma * self.error_var.sqrt().max(0.01);
         let action = self.determine_action(error_norm, is_anomaly);
 
         // Adaptive funnel: widen on anomaly, narrow on convergence
@@ -279,11 +282,16 @@ impl TemporalAgent {
         if self.history_count < 2 {
             return;
         }
-        let prev_pos = if self.history_pos == 0 { HISTORY_SIZE - 1 } else { self.history_pos - 1 };
+        let prev_pos = if self.history_pos == 0 {
+            HISTORY_SIZE - 1
+        } else {
+            self.history_pos - 1
+        };
         if let Some(prev) = &self.history[prev_pos] {
             let prev_norm = prev.error / COVERING_RADIUS;
             let rate = current - prev_norm;
-            self.convergence_rate = self.learning_rate * rate + (1.0 - self.learning_rate) * self.convergence_rate;
+            self.convergence_rate =
+                self.learning_rate * rate + (1.0 - self.learning_rate) * self.convergence_rate;
         }
     }
 
@@ -299,7 +307,9 @@ impl TemporalAgent {
     /// Update chirality state machine.
     fn update_chirality(&mut self, chamber: u8) {
         match self.chirality {
-            ChiralityState::Exploring { ref mut chamber_hops } => {
+            ChiralityState::Exploring {
+                ref mut chamber_hops,
+            } => {
                 *chamber_hops += 1;
                 if *chamber_hops > 10 {
                     if let Some(d) = self.dominant_chamber() {
@@ -313,7 +323,10 @@ impl TemporalAgent {
                     }
                 }
             }
-            ChiralityState::Locking { dominant, ref mut confidence_milli } => {
+            ChiralityState::Locking {
+                dominant,
+                ref mut confidence_milli,
+            } => {
                 if chamber == dominant {
                     *confidence_milli = confidence_milli.saturating_add(50);
                     if *confidence_milli > 900 {
@@ -357,10 +370,10 @@ impl TemporalAgent {
         if error_norm < 0.05 {
             return AgentAction::Satisfied;
         }
-        if matches!(self.chirality, ChiralityState::Locked { .. }) {
-            if !matches!(self.phase, FunnelPhase::Crystallized) {
-                return AgentAction::CommitChirality;
-            }
+        if matches!(self.chirality, ChiralityState::Locked { .. })
+            && !matches!(self.phase, FunnelPhase::Crystallized)
+        {
+            return AgentAction::CommitChirality;
         }
         if self.convergence_rate < -0.01 {
             return AgentAction::Converging;
@@ -377,11 +390,9 @@ impl TemporalAgent {
     /// Find the most common chamber in history.
     fn dominant_chamber(&self) -> Option<u8> {
         let mut counts = [0u32; 6];
-        for slot in &self.history {
-            if let Some(s) = slot {
-                if (s.chamber as usize) < 6 {
-                    counts[s.chamber as usize] += 1;
-                }
+        for s in self.history.iter().flatten() {
+            if (s.chamber as usize) < 6 {
+                counts[s.chamber as usize] += 1;
             }
         }
         let max_count = *counts.iter().max()?;
@@ -395,12 +406,10 @@ impl TemporalAgent {
     fn chamber_confidence_milli(&self, dominant: u8) -> u16 {
         let mut dominant_count = 0u32;
         let mut total = 0u32;
-        for slot in &self.history {
-            if let Some(s) = slot {
-                total += 1;
-                if s.chamber == dominant {
-                    dominant_count += 1;
-                }
+        for s in self.history.iter().flatten() {
+            total += 1;
+            if s.chamber == dominant {
+                dominant_count += 1;
             }
         }
         if total == 0 {
@@ -422,11 +431,9 @@ impl TemporalAgent {
     pub fn temperature(&self) -> f64 {
         let mut chamber_counts = [0f64; 6];
         let mut total = 0.0;
-        for slot in &self.history {
-            if let Some(s) = slot {
-                chamber_counts[s.chamber as usize] += 1.0;
-                total += 1.0;
-            }
+        for s in self.history.iter().flatten() {
+            chamber_counts[s.chamber as usize] += 1.0;
+            total += 1.0;
         }
         if total == 0.0 {
             return 1.0;
@@ -448,8 +455,7 @@ impl TemporalAgent {
         AgentSummary {
             history_count: self.history_count,
             error_mean: self.error_mean,
-            error_std: self.error_var.sqrt().max(0.0)
-                / (self.history_count as f64).sqrt().max(1.0),
+            error_std: self.error_var.sqrt().max(0.0) / (self.history_count as f64).sqrt().max(1.0),
             convergence_rate: self.convergence_rate,
             precision_energy: self.precision_energy,
             prediction_error: self.prediction_error,
@@ -546,15 +552,24 @@ mod tests {
         // A few more steady-state — should NOT be anomaly
         for _ in 0..5 {
             let update = agent.observe(0.01, 0.01);
-            assert!(!update.is_anomaly, "Should not be anomaly during steady state");
+            assert!(
+                !update.is_anomaly,
+                "Should not be anomaly during steady state"
+            );
         }
         // Sudden jump — should detect anomaly (large prediction error)
         let update = agent.observe(3.0, 3.0);
         // After steady state at (0.01, 0.01), (3,3) should produce large prediction error
         // but the statistics may be tight — check either anomaly OR action
-        assert!(update.is_anomaly || update.action == AgentAction::WidenFunnel || update.prediction_error > 0.5,
+        assert!(
+            update.is_anomaly
+                || update.action == AgentAction::WidenFunnel
+                || update.prediction_error > 0.5,
             "Should detect anomaly on sudden jump: anomaly={}, action={:?}, pred_err={:.4}",
-            update.is_anomaly, update.action, update.prediction_error);
+            update.is_anomaly,
+            update.action,
+            update.prediction_error
+        );
     }
 
     #[test]
@@ -607,13 +622,19 @@ mod tests {
         for _ in 0..20 {
             let update = agent.observe(0.0, 0.0);
             if update.snap.error < 0.001 {
-                if matches!(update.action, AgentAction::Satisfied | AgentAction::HoldSteady | AgentAction::Converging) {
+                if matches!(
+                    update.action,
+                    AgentAction::Satisfied | AgentAction::HoldSteady | AgentAction::Converging
+                ) {
                     found_satisfied = true;
                     break;
                 }
             }
         }
-        assert!(found_satisfied, "Should reach satisfied/converging at origin");
+        assert!(
+            found_satisfied,
+            "Should reach satisfied/converging at origin"
+        );
     }
 
     #[test]

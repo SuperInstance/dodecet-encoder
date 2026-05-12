@@ -3,7 +3,7 @@
 // This example demonstrates a complete end-to-end integration of the dodecet-encoder
 // library, combining geometric operations and practical applications.
 
-use dodecet_encoder::{Dodecet, DodecetString, Point3D, Vector3D, Transform3D, hex};
+use dodecet_encoder::{hex, Dodecet, DodecetString, Point3D, Transform3D, Vector3D};
 use std::collections::HashMap;
 
 /// Example 1: 3D Object Modeling
@@ -23,7 +23,8 @@ fn example_3d_modeling() {
     ];
 
     println!("Cube vertices: {} points", cube_vertices.len());
-    println!("Memory usage: {} bytes (vs {} bytes for f64)",
+    println!(
+        "Memory usage: {} bytes (vs {} bytes for f64)",
         cube_vertices.len() * 6,  // 6 bytes per point
         cube_vertices.len() * 24  // 24 bytes per f64 point
     );
@@ -36,16 +37,17 @@ fn example_3d_modeling() {
     let min_z = cube_vertices.iter().map(|p| p.z()).min().unwrap();
     let max_z = cube_vertices.iter().map(|p| p.z()).max().unwrap();
 
-    println!("Bounding box: [{},{}] x [{},{}] x [{},{}]",
-        min_x, max_x, min_y, max_y, min_z, max_z);
+    println!(
+        "Bounding box: [{},{}] x [{},{}] x [{},{}]",
+        min_x, max_x, min_y, max_y, min_z, max_z
+    );
 
     // Apply transformation
     let transform = Transform3D::translation(100, 100, 100);
-    let transformed: Vec<Point3D> = cube_vertices.iter()
-        .map(|p| transform.apply(p))
-        .collect();
+    let transformed: Vec<Point3D> = cube_vertices.iter().map(|p| transform.apply(p)).collect();
 
-    println!("Transformed cube center: ({}, {}, {})",
+    println!(
+        "Transformed cube center: ({}, {}, {})",
         (transformed[0].x() + transformed[6].x()) / 2,
         (transformed[0].y() + transformed[6].y()) / 2,
         (transformed[0].z() + transformed[6].z()) / 2
@@ -71,17 +73,24 @@ fn example_batch_processing() {
     println!("Average: {}", avg);
 
     // Apply operation to all elements
-    let doubled: Vec<Dodecet> = dodecets.iter()
+    let doubled: Vec<Dodecet> = dodecets
+        .iter()
         .map(|d| Dodecet::from_hex(d.value() * 2 % 4096))
         .collect();
-    println!("Doubled first 5 values: {:?}",
-        doubled.iter().take(5).map(|d| d.value()).collect::<Vec<_>>()
+    println!(
+        "Doubled first 5 values: {:?}",
+        doubled
+            .iter()
+            .take(5)
+            .map(|d| d.value())
+            .collect::<Vec<_>>()
     );
 
     // Memory efficiency
-    println!("Memory: {} bytes (vs {} bytes for Vec<f64>)",
-        dodecets.len() * 2,  // 2 bytes per dodecet
-        100 * 8  // 100 f64 values
+    println!(
+        "Memory: {} bytes (vs {} bytes for Vec<f64>)",
+        dodecets.len() * 2, // 2 bytes per dodecet
+        100 * 8             // 100 f64 values
     );
 }
 
@@ -91,34 +100,41 @@ fn example_network_transfer() {
 
     // Simulate sending 3D point cloud
     let points: Vec<Point3D> = (0..10)
-        .map(|i| Point3D::new(
-            (i * 100) % 4096,
-            (i * 150) % 4096,
-            (i * 200) % 4096
-        ))
+        .map(|i| Point3D::new((i * 100) % 4096, (i * 150) % 4096, (i * 200) % 4096))
         .collect();
 
     // Convert to dodecets
-    let dodecets: Vec<Dodecet> = points.iter()
-        .flat_map(|p| vec![
-            Dodecet::new(p.x()).unwrap(),
-            Dodecet::new(p.y()).unwrap(),
-            Dodecet::new(p.z()).unwrap()
-        ])
+    let dodecets: Vec<Dodecet> = points
+        .iter()
+        .flat_map(|p| {
+            vec![
+                Dodecet::new(p.x()).unwrap(),
+                Dodecet::new(p.y()).unwrap(),
+                Dodecet::new(p.z()).unwrap(),
+            ]
+        })
         .collect();
 
-    println!("Original: {} points = {} dodecets", points.len(), dodecets.len());
+    println!(
+        "Original: {} points = {} dodecets",
+        points.len(),
+        dodecets.len()
+    );
 
     // Serialize to hex string
     let hex_string = hex::encode(&dodecets);
     println!("Hex string length: {} characters", hex_string.len());
-    println!("First 30 chars: {}...", &hex_string[..30.min(hex_string.len())]);
+    println!(
+        "First 30 chars: {}...",
+        &hex_string[..30.min(hex_string.len())]
+    );
 
     // Pack into bytes
     let dodecet_string = DodecetString::from_dodecets(dodecets.clone());
     let packed = dodecet_string.to_bytes();
     println!("Packed bytes: {} bytes", packed.len());
-    println!("Efficiency: {:.2} dodecets/byte",
+    println!(
+        "Efficiency: {:.2} dodecets/byte",
         dodecets.len() as f64 / packed.len() as f64
     );
 
@@ -127,7 +143,8 @@ fn example_network_transfer() {
     println!("Received: {} dodecets", received.len());
 
     // Verify
-    let matching = dodecets.iter()
+    let matching = dodecets
+        .iter()
         .zip(received.iter())
         .filter(|(a, b)| a.value() == b.value())
         .count();
@@ -144,11 +161,13 @@ fn example_spatial_hash() {
 
     // Add 1000 random points
     let points: Vec<Point3D> = (0..1000)
-        .map(|i| Point3D::new(
-            (i * 17 % 4096) as u16,
-            (i * 23 % 4096) as u16,
-            (i * 31 % 4096) as u16
-        ))
+        .map(|i| {
+            Point3D::new(
+                (i * 17 % 4096) as u16,
+                (i * 23 % 4096) as u16,
+                (i * 31 % 4096) as u16,
+            )
+        })
         .collect();
 
     // Insert into grid
@@ -156,21 +175,24 @@ fn example_spatial_hash() {
         let cell = (
             point.x() / cell_size,
             point.y() / cell_size,
-            point.z() / cell_size
+            point.z() / cell_size,
         );
         grid.entry(cell).or_insert_with(Vec::new).push(point);
     }
 
     println!("Points: {}", points.len());
     println!("Grid cells: {}", grid.len());
-    println!("Avg points per cell: {:.1}", points.len() as f64 / grid.len() as f64);
+    println!(
+        "Avg points per cell: {:.1}",
+        points.len() as f64 / grid.len() as f64
+    );
 
     // Query nearby points
     let query = Point3D::new(2048, 2048, 2048);
     let query_cell = (
         query.x() / cell_size,
         query.y() / cell_size,
-        query.z() / cell_size
+        query.z() / cell_size,
     );
 
     let nearby_count = grid.get(&query_cell).map(|v| v.len()).unwrap_or(0);
@@ -198,9 +220,8 @@ fn example_geometric_constraints() {
 
     // Check if equilateral (within tolerance)
     let tolerance = 10.0;
-    let is_equilateral = (a - b).abs() < tolerance &&
-                        (b - c).abs() < tolerance &&
-                        (c - a).abs() < tolerance;
+    let is_equilateral =
+        (a - b).abs() < tolerance && (b - c).abs() < tolerance && (c - a).abs() < tolerance;
 
     println!("Is equilateral (±{}): {}", tolerance, is_equilateral);
 
@@ -225,21 +246,34 @@ fn example_collision_detection() {
 
     // Check collision between boxes
     fn aabb_collision(min1: &Point3D, max1: &Point3D, min2: &Point3D, max2: &Point3D) -> bool {
-        min1.x() <= max2.x() && max1.x() >= min2.x() &&
-        min1.y() <= max2.y() && max1.y() >= min2.y() &&
-        min1.z() <= max2.z() && max1.z() >= min2.z()
+        min1.x() <= max2.x()
+            && max1.x() >= min2.x()
+            && min1.y() <= max2.y()
+            && max1.y() >= min2.y()
+            && min1.z() <= max2.z()
+            && max1.z() >= min2.z()
     }
 
     let collision1 = aabb_collision(&box1_min, &box1_max, &box2_min, &box2_max);
     let collision2 = aabb_collision(&box1_min, &box1_max, &box3_min, &box3_max);
 
-    println!("Box 1: ({},{},{}) to ({},{},{})",
-        box1_min.x(), box1_min.y(), box1_min.z(),
-        box1_max.x(), box1_max.y(), box1_max.z()
+    println!(
+        "Box 1: ({},{},{}) to ({},{},{})",
+        box1_min.x(),
+        box1_min.y(),
+        box1_min.z(),
+        box1_max.x(),
+        box1_max.y(),
+        box1_max.z()
     );
-    println!("Box 2: ({},{},{}) to ({},{},{})",
-        box2_min.x(), box2_min.y(), box2_min.z(),
-        box2_max.x(), box2_max.y(), box2_max.z()
+    println!(
+        "Box 2: ({},{},{}) to ({},{},{})",
+        box2_min.x(),
+        box2_min.y(),
+        box2_min.z(),
+        box2_max.x(),
+        box2_max.y(),
+        box2_max.z()
     );
     println!("Collision 1-2: {}", collision1);
     println!("Collision 1-3: {}", collision2);
@@ -263,7 +297,8 @@ fn example_distance_queries() {
 
     // Find all points within distance 200
     let max_distance = 200.0;
-    let nearby: Vec<(&Point3D, f64)> = points.iter()
+    let nearby: Vec<(&Point3D, f64)> = points
+        .iter()
         .map(|p| {
             let dist = p.distance_to(&query);
             (p, dist)
@@ -276,13 +311,18 @@ fn example_distance_queries() {
     println!("Nearby points: {}/{}", nearby.len(), points.len());
 
     // Find nearest neighbor
-    let nearest = points.iter()
+    let nearest = points
+        .iter()
         .map(|p| (p, p.distance_to(&query)))
         .min_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
 
     if let Some((point, distance)) = nearest {
-        println!("Nearest: ({}, {}, {}) at distance {:.1}",
-            point.x(), point.y(), point.z(), distance
+        println!(
+            "Nearest: ({}, {}, {}) at distance {:.1}",
+            point.x(),
+            point.y(),
+            point.z(),
+            distance
         );
     }
 }
@@ -304,7 +344,12 @@ fn example_vector_operations() {
 
     // Cross product
     let cross = v1.cross(&v2);
-    println!("Cross product: ({}, {}, {})", cross.x(), cross.y(), cross.z());
+    println!(
+        "Cross product: ({}, {}, {})",
+        cross.x(),
+        cross.y(),
+        cross.z()
+    );
 
     // Magnitude
     let mag1 = v1.magnitude();

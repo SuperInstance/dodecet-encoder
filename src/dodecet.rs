@@ -18,8 +18,7 @@ use crate::{DodecetError, Result, MAX_DODECET, NIBBLES};
 /// assert_eq!(d.nibble(1).unwrap(), 0xB);
 /// assert_eq!(d.nibble(2).unwrap(), 0xA);
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-#[derive(Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct Dodecet {
     value: u16,
 }
@@ -312,8 +311,7 @@ impl Dodecet {
     /// assert_eq!(d.value(), 0xABC);
     /// ```
     pub fn from_hex_str(s: &str) -> Result<Self> {
-        let value = u16::from_str_radix(s.trim(), 16)
-            .map_err(|_| DodecetError::InvalidHex)?;
+        let value = u16::from_str_radix(s.trim(), 16).map_err(|_| DodecetError::InvalidHex)?;
 
         if value > MAX_DODECET {
             return Err(DodecetError::Overflow);
@@ -371,10 +369,11 @@ impl Dodecet {
     }
 }
 
-
 impl From<u8> for Dodecet {
     fn from(value: u8) -> Self {
-        Dodecet { value: value as u16 }
+        Dodecet {
+            value: value as u16,
+        }
     }
 }
 

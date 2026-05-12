@@ -3,8 +3,8 @@
 //! This module provides wasm-bindgen exports for browser and Node.js environments.
 //! It enables JavaScript/TypeScript code to use the dodecet encoding system directly.
 
-use wasm_bindgen::prelude::*;
 use crate::{Dodecet, DodecetArray, DodecetError, Result};
+use wasm_bindgen::prelude::*;
 
 // Import JavaScript types
 #[wasm_bindgen]
@@ -174,9 +174,7 @@ impl WasmDodecet {
 
     /// Clone the dodecet
     pub fn clone(&self) -> WasmDodecet {
-        WasmDodecet {
-            inner: self.inner,
-        }
+        WasmDodecet { inner: self.inner }
     }
 
     /// Convert to string representation

@@ -202,7 +202,9 @@ impl<const N: usize> DodecetArray<N> {
     /// assert_eq!(arr.sum().value(), 0x600);
     /// ```
     pub fn sum(self) -> Dodecet {
-        self.data.into_iter().fold(Dodecet::from_hex(0), |acc, d| acc + d)
+        self.data
+            .into_iter()
+            .fold(Dodecet::from_hex(0), |acc, d| acc + d)
     }
 
     /// Get the average

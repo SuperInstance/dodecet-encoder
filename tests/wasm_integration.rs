@@ -1,7 +1,7 @@
 // Integration Tests for WASM Package
 // Tests the WASM package functionality and integration with constraint-theory
 
-use dodecet_encoder::{Dodecet, DodecetArray, Point3D, Vector3D, Transform3D};
+use dodecet_encoder::{Dodecet, DodecetArray, Point3D, Transform3D, Vector3D};
 use std::time::Instant;
 
 #[cfg(test)]
@@ -47,7 +47,11 @@ mod wasm_integration_tests {
         // 100 = 0x064, 200 = 0x0C8, 300 = 0x12C
         // Result: "064" + "0C8" + "12C" = "0640C812C"
         let hex = point.to_hex_string();
-        assert!(hex.contains("064") || hex.contains("64"), "Expected hex to contain 064 or 64, got: {}", hex);
+        assert!(
+            hex.contains("064") || hex.contains("64"),
+            "Expected hex to contain 064 or 64, got: {}",
+            hex
+        );
     }
 
     /// Test Vector3D operations
@@ -64,7 +68,7 @@ mod wasm_integration_tests {
 
         // Test dot product
         let dot = v1.dot(&v2);
-        assert_eq!(dot, 100*400 + 200*500 + 300*600);
+        assert_eq!(dot, 100 * 400 + 200 * 500 + 300 * 600);
 
         // Test cross product
         let cross = v1.cross(&v2);
@@ -174,7 +178,11 @@ mod wasm_integration_tests {
         // Target: <100ns per encoding operation (relaxed for debug builds)
         // Debug builds are ~10-50x slower than release builds
         // Using 500ns threshold to accommodate debug mode without sacrificing release performance goals
-        assert!(per_operation < 500.0, "Encoding too slow: {}ns", per_operation);
+        assert!(
+            per_operation < 500.0,
+            "Encoding too slow: {}ns",
+            per_operation
+        );
     }
 
     /// Test performance: decoding speed
@@ -196,7 +204,11 @@ mod wasm_integration_tests {
         // Target: <100ns per decoding operation (relaxed for debug builds)
         // Debug builds are ~10-50x slower than release builds
         // Using 500ns threshold to accommodate debug mode without sacrificing release performance goals
-        assert!(per_operation < 500.0, "Decoding too slow: {}ns", per_operation);
+        assert!(
+            per_operation < 500.0,
+            "Decoding too slow: {}ns",
+            per_operation
+        );
     }
 
     /// Test performance: geometric operations
@@ -220,7 +232,11 @@ mod wasm_integration_tests {
         // Target: <100ns per vector operation (relaxed for debug builds)
         // Debug builds are ~10-50x slower than release builds
         // Using 500ns threshold to accommodate debug mode without sacrificing release performance goals
-        assert!(per_operation < 500.0, "Vector ops too slow: {}ns", per_operation);
+        assert!(
+            per_operation < 500.0,
+            "Vector ops too slow: {}ns",
+            per_operation
+        );
     }
 
     /// Test performance: distance calculation
@@ -240,7 +256,11 @@ mod wasm_integration_tests {
         let per_operation = duration.as_nanos() as f64 / iterations as f64;
 
         // Target: <100ns per distance calculation (relaxed for debug builds)
-        assert!(per_operation < 100.0, "Distance calc too slow: {}ns", per_operation);
+        assert!(
+            per_operation < 100.0,
+            "Distance calc too slow: {}ns",
+            per_operation
+        );
     }
 
     /// Test memory efficiency
@@ -258,8 +278,11 @@ mod wasm_integration_tests {
         let actual_size = std::mem::size_of_val(&*dodecets);
 
         // Allow 4x overhead for Vec structure
-        assert!(actual_size < expected_size * 4,
-                "Memory usage too high: {} bytes", actual_size);
+        assert!(
+            actual_size < expected_size * 4,
+            "Memory usage too high: {} bytes",
+            actual_size
+        );
     }
 
     /// Test constraint-theory simulator integration
@@ -292,7 +315,13 @@ mod wasm_integration_tests {
         let hex_array = point.to_hex_string();
 
         // Should be 9 hex characters (3 dodecets * 3 chars each)
-        assert_eq!(hex_array.len(), 9, "Expected 9 hex characters, got: {} -> {}", hex_array.len(), hex_array);
+        assert_eq!(
+            hex_array.len(),
+            9,
+            "Expected 9 hex characters, got: {} -> {}",
+            hex_array.len(),
+            hex_array
+        );
 
         // Should be valid hex
         assert!(hex_array.chars().all(|c: char| c.is_ascii_hexdigit()));
@@ -366,9 +395,8 @@ mod browser_simulation_tests {
         let mut count = 0;
 
         loop {
-            let new_dodecets: Vec<Dodecet> = (0..10000)
-                .map(|i| Dodecet::from_hex(i % 4096))
-                .collect();
+            let new_dodecets: Vec<Dodecet> =
+                (0..10000).map(|i| Dodecet::from_hex(i % 4096)).collect();
 
             let new_size = std::mem::size_of_val(&*new_dodecets);
             let current_size = std::mem::size_of_val(&*dodecets);
@@ -386,7 +414,11 @@ mod browser_simulation_tests {
         }
 
         // Should be able to store at least 500K dodecets in 50MB
-        assert!(count >= 500000, "Could only store {} dodecets in 50MB", count);
+        assert!(
+            count >= 500000,
+            "Could only store {} dodecets in 50MB",
+            count
+        );
     }
 
     /// Test WASM-like performance characteristics
@@ -401,7 +433,11 @@ mod browser_simulation_tests {
             let d = Dodecet::from_hex(i % 4096);
             let _hex = d.to_hex_string();
             // Simulate JS-WASM boundary crossing
-            let _json = format!("{{\"value\": {}, \"hex\": \"{}\"}}", d.value(), d.to_hex_string());
+            let _json = format!(
+                "{{\"value\": {}, \"hex\": \"{}\"}}",
+                d.value(),
+                d.to_hex_string()
+            );
         }
         let duration_with_overhead = start.elapsed();
 
@@ -414,10 +450,13 @@ mod browser_simulation_tests {
         let duration_without_overhead = start.elapsed();
 
         // Overhead should be <10x (relaxed for debug builds and variability)
-        let overhead_ratio = duration_with_overhead.as_nanos() as f64 /
-                           duration_without_overhead.as_nanos() as f64;
+        let overhead_ratio =
+            duration_with_overhead.as_nanos() as f64 / duration_without_overhead.as_nanos() as f64;
 
-        assert!(overhead_ratio < 10.0,
-                "WASM overhead too high: {}x", overhead_ratio);
+        assert!(
+            overhead_ratio < 10.0,
+            "WASM overhead too high: {}x",
+            overhead_ratio
+        );
     }
 }

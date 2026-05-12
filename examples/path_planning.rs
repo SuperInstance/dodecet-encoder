@@ -4,8 +4,8 @@
 // showing how discrete geometric representation enables efficient algorithms.
 
 use dodecet_encoder::{Point3D, Vector3D};
-use std::collections::{HashSet, BinaryHeap, HashMap};
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap, HashSet};
 
 /// 3D grid node for path planning
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -28,9 +28,12 @@ impl GridNode {
     fn neighbors(&self) -> Vec<GridNode> {
         let mut neighbors = Vec::new();
         let dirs = [
-            (1, 0, 0), (-1, 0, 0),
-            (0, 1, 0), (0, -1, 0),
-            (0, 0, 1), (0, 0, -1),
+            (1, 0, 0),
+            (-1, 0, 0),
+            (0, 1, 0),
+            (0, -1, 0),
+            (0, 0, 1),
+            (0, 0, -1),
         ];
 
         for (dx, dy, dz) in dirs.iter() {
@@ -50,7 +53,7 @@ impl GridNode {
         let dx = (self.x as i32 - other.x as i32).abs() as f64;
         let dy = (self.y as i32 - other.y as i32).abs() as f64;
         let dz = (self.z as i32 - other.z as i32).abs() as f64;
-        (dx*dx + dy*dy + dz*dz).sqrt()
+        (dx * dx + dy * dy + dz * dz).sqrt()
     }
 
     fn manhattan_distance(&self, other: &GridNode) -> u32 {
@@ -88,7 +91,9 @@ impl PartialOrd for AStarNode {
 impl Ord for AStarNode {
     fn cmp(&self, other: &Self) -> Ordering {
         // Reverse order for min-heap
-        other.f_cost.cmp(&self.f_cost)
+        other
+            .f_cost
+            .cmp(&self.f_cost)
             .then_with(|| other.h_cost.cmp(&self.h_cost))
     }
 }
@@ -116,10 +121,10 @@ impl Environment {
     }
 
     fn is_valid(&self, node: &GridNode) -> bool {
-        node.x < self.bounds.0 &&
-        node.y < self.bounds.1 &&
-        node.z < self.bounds.2 &&
-        !self.is_obstacle(node)
+        node.x < self.bounds.0
+            && node.y < self.bounds.1
+            && node.z < self.bounds.2
+            && !self.is_obstacle(node)
     }
 
     fn get_valid_neighbors(&self, node: &GridNode) -> Vec<GridNode> {
@@ -131,11 +136,7 @@ impl Environment {
 }
 
 /// A* pathfinding algorithm
-fn astar_pathfind(
-    env: &Environment,
-    start: GridNode,
-    goal: GridNode
-) -> Option<Vec<GridNode>> {
+fn astar_pathfind(env: &Environment, start: GridNode, goal: GridNode) -> Option<Vec<GridNode>> {
     let mut open_set = BinaryHeap::new();
     let mut came_from: HashMap<GridNode, GridNode> = HashMap::new();
     let mut g_score: HashMap<GridNode, u32> = HashMap::new();
@@ -219,7 +220,7 @@ fn line_of_sight(a: &GridNode, b: &GridNode, env: &Environment) -> bool {
     let dx = (b.x as i32 - a.x as i32) as f64;
     let dy = (b.y as i32 - a.y as i32) as f64;
     let dz = (b.z as i32 - a.z as i32) as f64;
-    let dist = (dx*dx + dy*dy + dz*dz).sqrt();
+    let dist = (dx * dx + dy * dy + dz * dz).sqrt();
 
     let steps = dist.ceil() as usize;
     if steps == 0 {
@@ -248,8 +249,8 @@ fn path_length(path: &[GridNode]) -> f64 {
     }
 
     let mut length = 0.0;
-    for i in 0..path.len()-1 {
-        length += path[i].distance_to(&path[i+1]);
+    for i in 0..path.len() - 1 {
+        length += path[i].distance_to(&path[i + 1]);
     }
 
     length
@@ -311,7 +312,10 @@ fn main() {
         let smoothed = smooth_path(&path, &env);
         println!("   Smoothed path: {} steps", smoothed.len());
         println!("   Smoothed distance: {:.2}", path_length(&smoothed));
-        println!("   Reduction: {:.1}%", 100.0 * (1.0 - smoothed.len() as f64 / path.len() as f64));
+        println!(
+            "   Reduction: {:.1}%",
+            100.0 * (1.0 - smoothed.len() as f64 / path.len() as f64)
+        );
     }
 
     // 5. Multiple waypoints
@@ -326,17 +330,24 @@ fn main() {
     let mut total_distance = 0.0;
     let mut total_steps = 0;
 
-    for i in 0..waypoints.len()-1 {
-        if let Some(segment) = astar_pathfind(&env, waypoints[i], waypoints[i+1]) {
+    for i in 0..waypoints.len() - 1 {
+        if let Some(segment) = astar_pathfind(&env, waypoints[i], waypoints[i + 1]) {
             let dist = path_length(&segment);
             total_distance += dist;
             total_steps += segment.len();
-            println!("   Segment {}: {} steps, {:.2} units",
-                i, segment.len(), dist);
+            println!(
+                "   Segment {}: {} steps, {:.2} units",
+                i,
+                segment.len(),
+                dist
+            );
         }
     }
 
-    println!("   Total: {} steps, {:.2} units", total_steps, total_distance);
+    println!(
+        "   Total: {} steps, {:.2} units",
+        total_steps, total_distance
+    );
 
     // 6. 3D maze navigation
     println!("\n6. 3D Maze Navigation:");
@@ -408,7 +419,10 @@ fn main() {
         println!("   Obstacles: 1000");
         println!("   Path found: {} steps", bench_path.len());
         println!("   Time: {:?}", bench_elapsed);
-        println!("   Performance: {:.2} steps/ms", bench_path.len() as f64 / bench_elapsed.as_millis() as f64);
+        println!(
+            "   Performance: {:.2} steps/ms",
+            bench_path.len() as f64 / bench_elapsed.as_millis() as f64
+        );
     }
 
     // 9. Memory efficiency
@@ -417,10 +431,18 @@ fn main() {
     let traditional_node_size = std::mem::size_of::<Point3D>() + std::mem::size_of::<Vector3D>();
 
     println!("   GridNode size: {} bytes", node_size);
-    println!("   Traditional (Point3D + Vector3D): {} bytes", traditional_node_size);
-    println!("   Savings per node: {} bytes", traditional_node_size - node_size);
-    println!("   For 10000 nodes: {} KB saved",
-        (traditional_node_size - node_size) * 10000 / 1024);
+    println!(
+        "   Traditional (Point3D + Vector3D): {} bytes",
+        traditional_node_size
+    );
+    println!(
+        "   Savings per node: {} bytes",
+        traditional_node_size - node_size
+    );
+    println!(
+        "   For 10000 nodes: {} KB saved",
+        (traditional_node_size - node_size) * 10000 / 1024
+    );
 
     // 10. Dodecet advantages
     println!("\n=== Key Advantages for Path Planning ===");

@@ -2,7 +2,7 @@
 //!
 //! Run with: cargo run --example basic_usage
 
-use dodecet_encoder::{Dodecet, DodecetArray, DodecetString, hex};
+use dodecet_encoder::{hex, Dodecet, DodecetArray, DodecetString};
 
 fn main() {
     println!("=== Dodecet Encoder - Basic Usage ===\n");
@@ -88,7 +88,10 @@ fn main() {
     let integral = calculus::integral(&f, 0.0, 2.0, 1000);
     println!("    f(x) = x²");
     println!("    f'(2) = {:.3} (expected: 4.0)", deriv);
-    println!("    ∫f(x)dx from 0 to 2 = {:.3} (expected: 2.667)\n", integral);
+    println!(
+        "    ∫f(x)dx from 0 to 2 = {:.3} (expected: 2.667)\n",
+        integral
+    );
 
     println!("=== Examples Complete ===");
 }

@@ -32,8 +32,10 @@ impl BenchmarkResult {
     }
 
     fn print(&self) {
-        println!("   {:<30} | {:>10} iter | {:>10.2} ns/op | {:>12.0} ops/s",
-            self.name, self.iterations, self.avg_time_ns, self.ops_per_second);
+        println!(
+            "   {:<30} | {:>10} iter | {:>10.2} ns/op | {:>12.0} ops/s",
+            self.name, self.iterations, self.avg_time_ns, self.ops_per_second
+        );
     }
 }
 
@@ -48,8 +50,10 @@ struct MemoryComparison {
 
 impl MemoryComparison {
     fn print(&self) {
-        println!("   {:<30} | {:>8} bytes/item | {:>12} bytes total | {:>10} items",
-            self.name, self.bytes_per_item, self.total_bytes, self.items);
+        println!(
+            "   {:<30} | {:>8} bytes/item | {:>12} bytes total | {:>10} items",
+            self.name, self.bytes_per_item, self.total_bytes, self.items
+        );
     }
 }
 
@@ -113,11 +117,13 @@ fn benchmark_vector_operations(iterations: usize) -> BenchmarkResult {
 
 fn benchmark_hex_encoding(iterations: usize) -> BenchmarkResult {
     let points: Vec<Point3D> = (0..iterations)
-        .map(|i| Point3D::new(
-            (i % 4096) as u16,
-            ((i * 2) % 4096) as u16,
-            ((i * 3) % 4096) as u16
-        ))
+        .map(|i| {
+            Point3D::new(
+                (i % 4096) as u16,
+                ((i * 2) % 4096) as u16,
+                ((i * 3) % 4096) as u16,
+            )
+        })
         .collect();
 
     let start = Instant::now();
@@ -144,11 +150,13 @@ fn benchmark_batch_operations(iterations: usize) -> BenchmarkResult {
 
 fn benchmark_serialization(iterations: usize) -> BenchmarkResult {
     let points: Vec<Point3D> = (0..iterations)
-        .map(|i| Point3D::new(
-            (i % 4096) as u16,
-            ((i * 2) % 4096) as u16,
-            ((i * 3) % 4096) as u16
-        ))
+        .map(|i| {
+            Point3D::new(
+                (i % 4096) as u16,
+                ((i * 2) % 4096) as u16,
+                ((i * 3) % 4096) as u16,
+            )
+        })
         .collect();
 
     let start = Instant::now();
@@ -181,7 +189,7 @@ fn compare_dodecet_vs_u8(iterations: usize) -> (MemoryComparison, MemoryComparis
             bytes_per_item: u8_size,
             total_bytes: u8_bytes,
             items: iterations,
-        }
+        },
     )
 }
 
@@ -204,7 +212,7 @@ fn compare_point3d_vs_f64(iterations: usize) -> (MemoryComparison, MemoryCompari
             bytes_per_item: f64_triplet_size,
             total_bytes: f64_bytes,
             items: iterations,
-        }
+        },
     )
 }
 
@@ -213,8 +221,14 @@ fn main() {
 
     // 1. Microbenchmarks
     println!("1. Microbenchmarks (1,000,000 iterations):");
-    println!("   {:<30} | {:>10}      | {:>14} | {:>14}", "Operation", "Iterations", "Time/Operation", "Operations/sec");
-    println!("   {:<30} | {:>10}      | {:>14} | {:>14}", "-----------", "-----------", "---------------", "--------------");
+    println!(
+        "   {:<30} | {:>10}      | {:>14} | {:>14}",
+        "Operation", "Iterations", "Time/Operation", "Operations/sec"
+    );
+    println!(
+        "   {:<30} | {:>10}      | {:>14} | {:>14}",
+        "-----------", "-----------", "---------------", "--------------"
+    );
 
     let iterations = 1_000_000;
 
@@ -235,8 +249,14 @@ fn main() {
 
     // 2. Memory comparison
     println!("\n2. Memory Comparison (10,000 items):");
-    println!("   {:<30} | {:>16} | {:>16} | {:>12}", "Type", "Bytes per Item", "Total Bytes", "Items");
-    println!("   {:<30} | {:>16} | {:>16} | {:>12}", "----", "---------------", "-----------", "-----");
+    println!(
+        "   {:<30} | {:>16} | {:>16} | {:>12}",
+        "Type", "Bytes per Item", "Total Bytes", "Items"
+    );
+    println!(
+        "   {:<30} | {:>16} | {:>16} | {:>12}",
+        "----", "---------------", "-----------", "-----"
+    );
 
     let items = 10_000;
 
@@ -301,54 +321,72 @@ fn main() {
     println!("\n7. Real-World Use Case: Point Cloud Processing (10,000 points)");
 
     let points: Vec<Point3D> = (0..10_000)
-        .map(|i| Point3D::new(
-            (i % 4096) as u16,
-            ((i * 2) % 4096) as u16,
-            ((i * 3) % 4096) as u16
-        ))
+        .map(|i| {
+            Point3D::new(
+                (i % 4096) as u16,
+                ((i * 2) % 4096) as u16,
+                ((i * 3) % 4096) as u16,
+            )
+        })
         .collect();
 
     // Serialization benchmark
     let start = Instant::now();
-    let serialized: Vec<String> = points.iter()
-        .map(|p| p.to_hex_string())
-        .collect();
+    let serialized: Vec<String> = points.iter().map(|p| p.to_hex_string()).collect();
     let serial_time = start.elapsed();
 
     // Deserialization benchmark
     let start = Instant::now();
-    let _deserialized: Vec<Point3D> = serialized.iter()
+    let _deserialized: Vec<Point3D> = serialized
+        .iter()
         .filter_map(|s| Point3D::from_hex_str(s).ok())
         .collect();
     let deserial_time = start.elapsed();
 
     println!("   Serialization:");
     println!("     Time: {:?}", serial_time);
-    println!("     Rate: {:.2} points/ms", 10_000.0 / serial_time.as_millis() as f64);
+    println!(
+        "     Rate: {:.2} points/ms",
+        10_000.0 / serial_time.as_millis() as f64
+    );
 
     println!("   Deserialization:");
     println!("     Time: {:?}", deserial_time);
-    println!("     Rate: {:.2} points/ms", 10_000.0 / deserial_time.as_millis() as f64);
+    println!(
+        "     Rate: {:.2} points/ms",
+        10_000.0 / deserial_time.as_millis() as f64
+    );
 
     // 8. Comparison summary
     println!("\n=== Performance Summary ===");
 
-    let avg_creation_ns = results.iter()
+    let avg_creation_ns = results
+        .iter()
         .find(|r| r.name.contains("Creation"))
         .map(|r| r.avg_time_ns)
         .unwrap_or(0.0);
 
-    let avg_arithmetic_ns = results.iter()
+    let avg_arithmetic_ns = results
+        .iter()
         .find(|r| r.name.contains("Arithmetic"))
         .map(|r| r.avg_time_ns)
         .unwrap_or(0.0);
 
     println!("✓ Dodecet Creation: {:.2} ns/op", avg_creation_ns);
     println!("✓ Dodecet Arithmetic: {:.2} ns/op", avg_arithmetic_ns);
-    println!("✓ Distance Calculation: {:.2} ns/op",
-        results.iter().find(|r| r.name.contains("Distance")).map(|r| r.avg_time_ns).unwrap_or(0.0));
+    println!(
+        "✓ Distance Calculation: {:.2} ns/op",
+        results
+            .iter()
+            .find(|r| r.name.contains("Distance"))
+            .map(|r| r.avg_time_ns)
+            .unwrap_or(0.0)
+    );
     println!("✓ Memory Efficiency: {:.1}% savings vs f64", point_savings);
-    println!("✓ Bit Efficiency: {:.2}x better than 8-bit", efficiency_gain);
+    println!(
+        "✓ Bit Efficiency: {:.2}x better than 8-bit",
+        efficiency_gain
+    );
 
     // 9. Recommendations
     println!("\n=== Recommendations ===");

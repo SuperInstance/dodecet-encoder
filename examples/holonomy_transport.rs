@@ -113,7 +113,9 @@ impl ManifoldPath {
     pub fn length(&self) -> f64 {
         let mut total = 0.0;
         for i in 0..self.points.len() - 1 {
-            total += self.points[i].coords.distance_to(&self.points[i + 1].coords);
+            total += self.points[i]
+                .coords
+                .distance_to(&self.points[i + 1].coords);
         }
         total
     }
@@ -344,7 +346,11 @@ fn main() {
     println!("   Length: {:.2}", sphere_path.length());
 
     let holonomy = transporter.holonomy_angle(&sphere_path, initial_vector);
-    println!("   Holonomy Angle: {:.3} rad ({:.1}°)", holonomy, holonomy * 180.0 / PI);
+    println!(
+        "   Holonomy Angle: {:.3} rad ({:.1}°)",
+        holonomy,
+        holonomy * 180.0 / PI
+    );
     println!("   Expected: Non-zero due to positive curvature");
     println!();
 
@@ -359,7 +365,11 @@ fn main() {
     println!("   Length: {:.2}", plane_path.length());
 
     let holonomy = transporter.holonomy_angle(&plane_path, initial_vector);
-    println!("   Holonomy Angle: {:.3} rad ({:.1}°)", holonomy, holonomy * 180.0 / PI);
+    println!(
+        "   Holonomy Angle: {:.3} rad ({:.1}°)",
+        holonomy,
+        holonomy * 180.0 / PI
+    );
     println!("   Expected: ~0 due to flat surface");
     println!();
 
@@ -373,7 +383,11 @@ fn main() {
     println!("   Length: {:.2}", hyperbolic_path.length());
 
     let holonomy = transporter.holonomy_angle(&hyperbolic_path, initial_vector);
-    println!("   Holonomy Angle: {:.3} rad ({:.1}°)", holonomy, holonomy * 180.0 / PI);
+    println!(
+        "   Holonomy Angle: {:.3} rad ({:.1}°)",
+        holonomy,
+        holonomy * 180.0 / PI
+    );
     println!("   Expected: Negative angle due to negative curvature");
     println!();
 
@@ -402,11 +416,22 @@ fn main() {
     let vector = Vec2D::new(1.0, 0.0);
 
     println!("   Initial vector: ({:.3}, {:.3})", vector.x, vector.y);
-    println!("   Initial angle: {:.3} rad ({:.1}°)", vector.angle(), vector.angle() * 180.0 / PI);
+    println!(
+        "   Initial angle: {:.3} rad ({:.1}°)",
+        vector.angle(),
+        vector.angle() * 180.0 / PI
+    );
 
     let transported = transporter.transport(&small_path, vector);
-    println!("   Final vector: ({:.3}, {:.3})", transported.x, transported.y);
-    println!("   Final angle: {:.3} rad ({:.1}°)", transported.angle(), transported.angle() * 180.0 / PI);
+    println!(
+        "   Final vector: ({:.3}, {:.3})",
+        transported.x, transported.y
+    );
+    println!(
+        "   Final angle: {:.3} rad ({:.1}°)",
+        transported.angle(),
+        transported.angle() * 180.0 / PI
+    );
     println!();
 
     // Example 7: Efficiency demonstration
@@ -421,8 +446,12 @@ fn main() {
     }
 
     let duration = start.elapsed();
-    println!("   Calculated {} holonomy angles in {:?}", iterations, duration);
-    println!("   Average: {:.2} μs/calculation",
+    println!(
+        "   Calculated {} holonomy angles in {:?}",
+        iterations, duration
+    );
+    println!(
+        "   Average: {:.2} μs/calculation",
         duration.as_micros() as f64 / iterations as f64
     );
     println!();

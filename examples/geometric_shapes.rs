@@ -2,7 +2,10 @@
 //!
 //! Run with: cargo run --example geometric_shapes
 
-use dodecet_encoder::geometric::{Point3D, Vector3D, Transform3D, shapes::{Triangle, Box3D}};
+use dodecet_encoder::geometric::{
+    shapes::{Box3D, Triangle},
+    Point3D, Transform3D, Vector3D,
+};
 
 fn main() {
     println!("=== Geometric Shapes with Dodecet Encoding ===\n");
@@ -13,7 +16,12 @@ fn main() {
     let p1 = Point3D::new(0x100, 0x200, 0x300);
     let p2 = Point3D::new(0x400, 0x500, 0x600);
 
-    println!("   Origin: ({}, {}, {})", origin.x(), origin.y(), origin.z());
+    println!(
+        "   Origin: ({}, {}, {})",
+        origin.x(),
+        origin.y(),
+        origin.z()
+    );
     println!("   Point 1: ({}, {}, {})", p1.x(), p1.y(), p1.z());
     println!("   Point 2: ({}, {}, {})", p2.x(), p2.y(), p2.z());
 
@@ -32,7 +40,12 @@ fn main() {
     println!("   Dot product: {}", dot);
 
     let cross = v1.cross(&v2);
-    println!("   Cross product: ({}, {}, {})", cross.x(), cross.y(), cross.z());
+    println!(
+        "   Cross product: ({}, {}, {})",
+        cross.x(),
+        cross.y(),
+        cross.z()
+    );
 
     let mag = v1.magnitude();
     println!("   Magnitude of v1: {:.2}\n", mag);
@@ -60,14 +73,20 @@ fn main() {
     println!("   Volume: {:.2}", volume);
 
     let test_point = Point3D::new(0x080, 0x080, 0x080);
-    println!("   Point ({}, {}, {}) inside: {}",
-        test_point.x(), test_point.y(), test_point.z(),
+    println!(
+        "   Point ({}, {}, {}) inside: {}",
+        test_point.x(),
+        test_point.y(),
+        test_point.z(),
         box3d.contains(&test_point)
     );
 
     let outside_point = Point3D::new(0x200, 0x080, 0x080);
-    println!("   Point ({}, {}, {}) inside: {}\n",
-        outside_point.x(), outside_point.y(), outside_point.z(),
+    println!(
+        "   Point ({}, {}, {}) inside: {}\n",
+        outside_point.x(),
+        outside_point.y(),
+        outside_point.z(),
         box3d.contains(&outside_point)
     );
 
@@ -77,30 +96,50 @@ fn main() {
 
     let identity = Transform3D::identity();
     let transformed = identity.apply(&point);
-    println!("   Identity: ({}, {}, {}) -> ({}, {}, {})",
-        point.x(), point.y(), point.z(),
-        transformed.x(), transformed.y(), transformed.z()
+    println!(
+        "   Identity: ({}, {}, {}) -> ({}, {}, {})",
+        point.x(),
+        point.y(),
+        point.z(),
+        transformed.x(),
+        transformed.y(),
+        transformed.z()
     );
 
     let translation = Transform3D::translation(100, 200, 300);
     let translated = translation.apply(&point);
-    println!("   Translation: ({}, {}, {}) -> ({}, {}, {})",
-        point.x(), point.y(), point.z(),
-        translated.x(), translated.y(), translated.z()
+    println!(
+        "   Translation: ({}, {}, {}) -> ({}, {}, {})",
+        point.x(),
+        point.y(),
+        point.z(),
+        translated.x(),
+        translated.y(),
+        translated.z()
     );
 
     let scale = Transform3D::scale(2.0, 2.0, 2.0);
     let scaled = scale.apply(&point);
-    println!("   Scale 2x: ({}, {}, {}) -> ({}, {}, {})",
-        point.x(), point.y(), point.z(),
-        scaled.x(), scaled.y(), scaled.z()
+    println!(
+        "   Scale 2x: ({}, {}, {}) -> ({}, {}, {})",
+        point.x(),
+        point.y(),
+        point.z(),
+        scaled.x(),
+        scaled.y(),
+        scaled.z()
     );
 
     let rotation = Transform3D::rotation_z(90.0);
     let rotated = rotation.apply(&Point3D::new(0x100, 0x000, 0x000));
-    println!("   Rotate 90° around Z: ({}, {}, {}) -> ({}, {}, {})\n",
-        0x100, 0x000, 0x000,
-        rotated.x(), rotated.y(), rotated.z()
+    println!(
+        "   Rotate 90° around Z: ({}, {}, {}) -> ({}, {}, {})\n",
+        0x100,
+        0x000,
+        0x000,
+        rotated.x(),
+        rotated.y(),
+        rotated.z()
     );
 
     // Composing transformations
@@ -111,9 +150,17 @@ fn main() {
 
     let original = Point3D::new(0x100, 0x000, 0x000);
     let result = composed.apply(&original);
-    println!("   Original: ({}, {}, {})", original.x(), original.y(), original.z());
-    println!("   After translate(100,0,0) then rotate(90°): ({}, {}, {})\n",
-        result.x(), result.y(), result.z()
+    println!(
+        "   Original: ({}, {}, {})",
+        original.x(),
+        original.y(),
+        original.z()
+    );
+    println!(
+        "   After translate(100,0,0) then rotate(90°): ({}, {}, {})\n",
+        result.x(),
+        result.y(),
+        result.z()
     );
 
     println!("=== Geometric Examples Complete ===");

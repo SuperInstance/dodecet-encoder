@@ -69,7 +69,11 @@ impl PythagoreanSnapper {
             scaled.min(0xFFF)
         };
 
-        Point3D::new(scale(dx * a as f64), scale(dy * b as f64), scale(dz * c as f64))
+        Point3D::new(
+            scale(dx * a as f64),
+            scale(dy * b as f64),
+            scale(dz * c as f64),
+        )
     }
 
     /// Find best matching Pythagorean triple
@@ -134,7 +138,10 @@ fn main() {
 
     // Example 1: Snap random points
     println!("1. Snapping Random Points:");
-    println!("   {:<20} {:<20} {:<15} {:<10}", "Original", "Snapped", "Triple", "Error");
+    println!(
+        "   {:<20} {:<20} {:<15} {:<10}",
+        "Original", "Snapped", "Triple", "Error"
+    );
 
     let test_points = vec![
         Point3D::new(0x100, 0x200, 0x300),
@@ -160,11 +167,7 @@ fn main() {
 
     // Example 2: Show Φ-Folding Operator (continuous → discrete)
     println!("2. Φ-Folding Operator (Continuous → Discrete):");
-    let continuous_points = vec![
-        (1.0, 2.0, 3.0),
-        (2.5, 3.7, 4.1),
-        (0.8, 1.2, 1.6),
-    ];
+    let continuous_points = vec![(1.0, 2.0, 3.0), (2.5, 3.7, 4.1), (0.8, 1.2, 1.6)];
 
     for (cx, cy, cz) in continuous_points {
         // Normalize and create dodecet point
@@ -217,10 +220,20 @@ fn main() {
 
     // Example 4: Memory efficiency comparison
     println!("4. Memory Efficiency:");
-    println!("   f64 (3D point): {} bytes", std::mem::size_of::<(f64, f64, f64)>());
-    println!("   Dodecet (3D point): {} bytes", std::mem::size_of::<Point3D>());
-    println!("   Savings: {:.1}%",
-        100.0 * (1.0 - std::mem::size_of::<Point3D>() as f64 / std::mem::size_of::<(f64, f64, f64)>() as f64)
+    println!(
+        "   f64 (3D point): {} bytes",
+        std::mem::size_of::<(f64, f64, f64)>()
+    );
+    println!(
+        "   Dodecet (3D point): {} bytes",
+        std::mem::size_of::<Point3D>()
+    );
+    println!(
+        "   Savings: {:.1}%",
+        100.0
+            * (1.0
+                - std::mem::size_of::<Point3D>() as f64
+                    / std::mem::size_of::<(f64, f64, f64)>() as f64)
     );
     println!();
 
@@ -241,7 +254,8 @@ fn main() {
 
     let duration = start.elapsed();
     println!("   Snapped {} points in {:?}", iterations, duration);
-    println!("   Average: {:.2} μs/point",
+    println!(
+        "   Average: {:.2} μs/point",
         duration.as_micros() as f64 / iterations as f64
     );
     println!();

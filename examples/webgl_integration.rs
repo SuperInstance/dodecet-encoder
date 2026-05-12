@@ -116,7 +116,8 @@ class DodecetWebGLBuffer {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { Dodecet, Point3D, DodecetWebGLBuffer };
 }
-"#.to_string()
+"#
+    .to_string()
 }
 
 /// Generate WebGL shader code for dodecet visualization
@@ -137,7 +138,8 @@ void main() {
     gl_PointSize = u_pointSize;
     v_color = a_color;
 }
-"#.to_string();
+"#
+    .to_string();
 
     let fragment_shader = r#"
 #version 300 es
@@ -156,7 +158,8 @@ void main() {
 
     fragColor = vec4(v_color, 1.0);
 }
-"#.to_string();
+"#
+    .to_string();
 
     (vertex_shader, fragment_shader)
 }
@@ -509,7 +512,8 @@ export class DodecetWebGLBuffer {
     private gl: WebGL2RenderingContext;
     private buffer: WebGLBuffer | null;
 }
-"#.to_string()
+"#
+    .to_string()
 }
 
 fn main() {

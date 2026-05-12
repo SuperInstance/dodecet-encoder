@@ -100,7 +100,11 @@ impl SnapResult {
 
     /// Get parity as string
     pub fn parity_str(&self) -> &'static str {
-        if self.parity > 0 { "even (+)" } else { "odd (-)" }
+        if self.parity > 0 {
+            "even (+)"
+        } else {
+            "odd (-)"
+        }
     }
 
     /// Deadband funnel position: √(error/ρ)
@@ -193,7 +197,11 @@ impl EisensteinConstraint {
 
         // Classify into Weyl chamber
         let chamber = Self::classify_chamber(x, y);
-        let parity = if EVEN_CHAMBERS.contains(&(chamber as usize)) { 1 } else { -1 };
+        let parity = if EVEN_CHAMBERS.contains(&{ chamber }) {
+            1
+        } else {
+            -1
+        };
 
         // Quantize error to 16 levels (nibble 2)
         let err_norm = (best_err / COVERING_RADIUS).min(1.0);
@@ -204,7 +212,7 @@ impl EisensteinConstraint {
         let dy = y - (best_b as f64 * OMEGA_IM);
         let angle_level = if dx != 0.0 || dy != 0.0 {
             let angle = dy.atan2(dx);
-            let norm = ((angle + std::f64::consts::PI) / (2.0 * std::f64::consts::PI));
+            let norm = (angle + std::f64::consts::PI) / (2.0 * std::f64::consts::PI);
             (norm * 16.0).floor() as u8 % 16
         } else {
             0
@@ -216,9 +224,8 @@ impl EisensteinConstraint {
         let chamber_byte = (safe_bit << 3) | (chamber as u8 & 0x7);
 
         // Pack dodecet
-        let dodecet = ((err_level as u16) << 8)
-            | ((angle_level as u16) << 4)
-            | (chamber_byte as u16);
+        let dodecet =
+            ((err_level as u16) << 8) | ((angle_level as u16) << 4) | (chamber_byte as u16);
 
         SnapResult {
             dodecet,
@@ -243,7 +250,11 @@ impl EisensteinConstraint {
         let vals = [b1, b2, b3];
         let indices = [0usize, 1, 2];
         let mut sorted = indices;
-        sorted.sort_by(|&a, &b| vals[b].partial_cmp(&vals[a]).unwrap_or(std::cmp::Ordering::Equal));
+        sorted.sort_by(|&a, &b| {
+            vals[b]
+                .partial_cmp(&vals[a])
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
 
         let perm = (sorted[0], sorted[1], sorted[2]);
         WEYL_PERMS.iter().position(|&p| p == perm).unwrap_or(0)
@@ -261,7 +272,10 @@ impl EisensteinConstraint {
         }
 
         // Error: take max (pessimistic)
-        let max_err = results.iter().map(|r| r.error).fold(f64::NEG_INFINITY, f64::max);
+        let max_err = results
+            .iter()
+            .map(|r| r.error)
+            .fold(f64::NEG_INFINITY, f64::max);
         let err_level = (max_err / COVERING_RADIUS * 15.0).round() as u8;
 
         // Angle: majority vote on angle level
@@ -269,7 +283,9 @@ impl EisensteinConstraint {
         for r in results {
             angle_votes[r.angle_level as usize] += 1;
         }
-        let angle_level = angle_votes.iter().enumerate()
+        let angle_level = angle_votes
+            .iter()
+            .enumerate()
             .max_by_key(|(_, &v)| v)
             .map(|(i, _)| i as u8)
             .unwrap_or(0);
@@ -279,21 +295,26 @@ impl EisensteinConstraint {
         for r in results {
             chamber_votes[r.chamber as usize] += 1;
         }
-        let chamber = chamber_votes.iter().enumerate()
+        let chamber = chamber_votes
+            .iter()
+            .enumerate()
             .max_by_key(|(_, &v)| v)
             .map(|(i, _)| i as u8)
-            .unwrap_or(0) as u8;
+            .unwrap_or(0);
 
         // Safety: all must be safe for merged to be safe
         let all_safe = results.iter().all(|r| r.is_safe);
         let safe_bit: u8 = if all_safe { 0 } else { 1 };
         let chamber_byte = (safe_bit << 3) | (chamber & 0x7);
 
-        let dodecet = ((err_level as u16) << 8)
-            | ((angle_level as u16) << 4)
-            | (chamber_byte as u16);
+        let dodecet =
+            ((err_level as u16) << 8) | ((angle_level as u16) << 4) | (chamber_byte as u16);
 
-        let parity = if EVEN_CHAMBERS.contains(&(chamber as usize)) { 1 } else { -1 };
+        let parity = if EVEN_CHAMBERS.contains(&(chamber as usize)) {
+            1
+        } else {
+            -1
+        };
 
         SnapResult {
             dodecet,
@@ -376,9 +397,14 @@ mod tests {
             let x = rand_float(-10.0, 10.0);
             let y = rand_float(-10.0, 10.0);
             let result = ec.snap(x, y);
-            assert!(result.error <= COVERING_RADIUS + 1e-6,
+            assert!(
+                result.error <= COVERING_RADIUS + 1e-6,
                 "Error {:.6} exceeds ρ {:.6} at ({:.2}, {:.2})",
-                result.error, COVERING_RADIUS, x, y);
+                result.error,
+                COVERING_RADIUS,
+                x,
+                y
+            );
         }
     }
 
@@ -403,15 +429,19 @@ mod tests {
             let result = ec.snap(x, y);
             errors_by_chamber[result.chamber as usize].push(result.error);
         }
-        let means: Vec<f64> = errors_by_chamber.iter()
+        let means: Vec<f64> = errors_by_chamber
+            .iter()
             .filter(|v| !v.is_empty())
             .map(|v| v.iter().sum::<f64>() / v.len() as f64)
             .collect();
         let max_spread = means.iter().cloned().fold(f64::NEG_INFINITY, f64::max)
             - means.iter().cloned().fold(f64::INFINITY, f64::min);
         // Snap error should be Weyl-invariant (spread < 5%)
-        assert!(max_spread / means[0] < 0.05,
-            "Chamber means too spread: {:?}", means);
+        assert!(
+            max_spread / means[0] < 0.05,
+            "Chamber means too spread: {:?}",
+            means
+        );
     }
 
     #[test]
@@ -448,9 +478,11 @@ mod tests {
             }
         }
         // Right-skew: majority should be at high error levels
-        assert!(high_count as f64 / total as f64 > 0.60,
+        assert!(
+            high_count as f64 / total as f64 > 0.60,
             "Expected >60% at levels 8-15, got {:.1}%",
-            high_count as f64 / total as f64 * 100.0);
+            high_count as f64 / total as f64 * 100.0
+        );
     }
 
     fn rand_float(min: f64, max: f64) -> f64 {
@@ -458,9 +490,14 @@ mod tests {
         static mut SEED: u64 = 0;
         unsafe {
             if SEED == 0 {
-                SEED = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos() as u64;
+                SEED = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos() as u64;
             }
-            SEED = SEED.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            SEED = SEED
+                .wrapping_mul(6364136223846793005)
+                .wrapping_add(1442695040888963407);
             let x = SEED;
             min + (max - min) * ((x >> 33) as f64 / (1u64 << 31) as f64)
         }

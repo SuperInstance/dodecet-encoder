@@ -1,6 +1,6 @@
 //! Performance benchmarks for dodecet operations
 
-use criterion::{black_box, criterion_group, criterion_main, Criterion, BenchmarkId};
+use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion};
 use dodecet_encoder::{Dodecet, DodecetArray, DodecetString};
 
 fn bench_dodecet_creation(c: &mut Criterion) {
@@ -105,13 +105,17 @@ fn bench_string_operations(c: &mut Criterion) {
             });
         });
 
-        group.bench_with_input(BenchmarkId::new("to_hex_string", size), &size, |b, &size| {
-            let mut s = DodecetString::with_capacity(size);
-            for i in 0..size {
-                s.push(i as u16 % 4096);
-            }
-            b.iter(|| black_box(&s).to_hex_string());
-        });
+        group.bench_with_input(
+            BenchmarkId::new("to_hex_string", size),
+            &size,
+            |b, &size| {
+                let mut s = DodecetString::with_capacity(size);
+                for i in 0..size {
+                    s.push(i as u16 % 4096);
+                }
+                b.iter(|| black_box(&s).to_hex_string());
+            },
+        );
 
         group.bench_with_input(BenchmarkId::new("from_hex_str", size), &size, |b, &size| {
             let hex: String = (0..size).map(|i| format!("{:03X}", i % 4096)).collect();
@@ -133,7 +137,10 @@ fn bench_hex_encoding(c: &mut Criterion) {
         b.iter(|| hex::encode(black_box(&dodecets)));
     });
 
-    let hex_string = dodecets.iter().map(|d| d.to_hex_string()).collect::<String>();
+    let hex_string = dodecets
+        .iter()
+        .map(|d| d.to_hex_string())
+        .collect::<String>();
 
     group.bench_function("decode_100", |b| {
         b.iter(|| hex::decode(black_box(&hex_string)));
@@ -187,7 +194,14 @@ fn bench_calculus_operations(c: &mut Criterion) {
     });
 
     group.bench_function("integral", |b| {
-        b.iter(|| calculus::integral(&f, black_box(0.0), black_box(std::f64::consts::PI), black_box(1000)));
+        b.iter(|| {
+            calculus::integral(
+                &f,
+                black_box(0.0),
+                black_box(std::f64::consts::PI),
+                black_box(1000),
+            )
+        });
     });
 
     group.bench_function("encode_function", |b| {
