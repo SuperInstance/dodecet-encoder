@@ -59,6 +59,7 @@ pub mod hex;
 pub mod calculus;
 pub mod eisenstein;
 pub mod simd;
+pub mod temporal;
 
 // WASM bindings
 #[cfg(feature = "wasm")]
