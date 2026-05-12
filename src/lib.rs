@@ -58,6 +58,7 @@ pub mod geometric;
 pub mod hex;
 pub mod calculus;
 pub mod eisenstein;
+pub mod seed_discovery;
 pub mod simd;
 pub mod temporal;
 
