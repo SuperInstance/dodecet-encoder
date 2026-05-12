@@ -57,6 +57,7 @@ pub mod string;
 pub mod geometric;
 pub mod hex;
 pub mod calculus;
+pub mod eisenstein;
 pub mod simd;
 
 // WASM bindings

@@ -75,3 +75,4 @@ inherits = "release"
 inherits = "release"
 opt-level = "s"
 overflow-checks = false
+[workspace]
