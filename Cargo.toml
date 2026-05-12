@@ -9,8 +9,8 @@ repository = "https://github.com/SuperInstance/dodecet-encoder"
 homepage = "https://superinstance.ai"
 documentation = "https://docs.rs/dodecet-encoder"
 readme = "README.md"
-keywords = ["encoding", "geometry", "12-bit", "dodecet", "math", "wasm", "3d", "vector", "calculus"]
-categories = ["encoding", "mathematics", "data-structures", "wasm", "graphics"]
+keywords = ["encoding", "geometry", "dodecet", "constraint", "eisenstein"]
+categories = ["mathematics", "data-structures", "embedded", "wasm"]
 exclude = [
     "/.github",
     "/target",
