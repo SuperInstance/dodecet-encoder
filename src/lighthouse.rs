@@ -26,6 +26,31 @@ pub enum AgentStatus {
     Failed,
 }
 
+/// Tile lifecycle for agent output — mirrors PLATO v3
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum TileLifecycle {
+    Active,
+    Superseded,
+    Retracted,
+}
+
+/// Lamport clock for causal ordering
+#[derive(Debug, Clone)]
+pub struct LamportClock {
+    time: u64,
+}
+
+impl LamportClock {
+    pub fn new() -> Self { Self { time: 0 } }
+    pub fn tick(&mut self) -> u64 { self.time += 1; self.time }
+    pub fn merge(&mut self, remote: u64) -> u64 { self.time = self.time.max(remote) + 1; self.time }
+    pub fn now(&self) -> u64 { self.time }
+}
+
+impl Default for LamportClock {
+    fn default() -> Self { Self::new() }
+}
+
 /// Model tier — matches resource allocation to task complexity
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ModelTier {
@@ -145,6 +170,10 @@ pub struct AgentRoom {
     pub gated: bool,
     /// Whether gate passed
     pub gate_passed: Option<bool>,
+    /// Tile lifecycle of agent output
+    pub lifecycle: TileLifecycle,
+    /// Lamport timestamp
+    pub lamport: u64,
     /// Timestamps
     pub created_at: u64,
     pub updated_at: u64,
@@ -164,6 +193,8 @@ pub struct Lighthouse {
     agents: HashMap<String, AgentRoom>,
     /// Available models and their remaining capacity
     capacity: HashMap<ModelTier, f64>,
+    /// Lamport clock for causal ordering
+    clock: LamportClock,
 }
 
 impl Default for Lighthouse {
@@ -184,6 +215,7 @@ impl Lighthouse {
         Lighthouse {
             agents: HashMap::new(),
             capacity,
+            clock: LamportClock::new(),
         }
     }
 
@@ -207,6 +239,8 @@ impl Lighthouse {
             crystallization_score: 0.0,
             gated: false,
             gate_passed: None,
+            lifecycle: TileLifecycle::Active,
+            lamport: self.clock.tick(),
             created_at: current_timestamp(),
             updated_at: current_timestamp(),
         };
@@ -340,6 +374,65 @@ impl Lighthouse {
         }
         lines.push(format!("  Active agents: {}", self.active_agents().len()));
         lines.join("\n")
+    }
+
+    // ── Tile Lifecycle (v1.2.0) ────────────────────────────
+
+    /// Supersede an agent's output — mark as superseded.
+    pub fn supersede_agent(&mut self, room_id: &str) -> bool {
+        if let Some(agent) = self.agents.get_mut(room_id) {
+            if agent.lifecycle == TileLifecycle::Active {
+                agent.lifecycle = TileLifecycle::Superseded;
+                agent.lamport = self.clock.tick();
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Retract an agent's output — mark as retracted.
+    pub fn retract_agent(&mut self, room_id: &str, reason: &str) -> bool {
+        if let Some(agent) = self.agents.get_mut(room_id) {
+            if agent.lifecycle == TileLifecycle::Active {
+                agent.lifecycle = TileLifecycle::Retracted;
+                agent.lamport = self.clock.tick();
+                agent.status = AgentStatus::Failed;
+                let _ = reason; // logged in production
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Get only active agents (lifecycle = Active).
+    pub fn active_lifecycle_agents(&self) -> Vec<&AgentRoom> {
+        self.agents.values()
+            .filter(|a| a.lifecycle == TileLifecycle::Active)
+            .collect()
+    }
+
+    /// Predict outcome before relay — simulation-first.
+    /// Returns predicted gate result without actually gating.
+    pub fn predict_gate(&self, room_id: &str, output: &str) -> GateResult {
+        // Same logic as gate(), but doesn't modify state
+        if contains_credentials(output) {
+            return GateResult::Rejected("Credential leak detected in prediction".to_string());
+        }
+        if contains_external_action(output) {
+            return GateResult::NeedsApproval("External action predicted".to_string());
+        }
+        if contains_overclaims(output) {
+            return GateResult::Rejected("Overclaim detected in prediction".to_string());
+        }
+        GateResult::Approved
+    }
+
+    /// Count agents by lifecycle state.
+    pub fn lifecycle_stats(&self) -> (usize, usize, usize) {
+        let active = self.agents.values().filter(|a| a.lifecycle == TileLifecycle::Active).count();
+        let superseded = self.agents.values().filter(|a| a.lifecycle == TileLifecycle::Superseded).count();
+        let retracted = self.agents.values().filter(|a| a.lifecycle == TileLifecycle::Retracted).count();
+        (active, superseded, retracted)
     }
 }
 
@@ -479,5 +572,80 @@ mod tests {
         lh.gate(&agent.room_id, "clean output");
         let after = *lh.capacity.get(&ModelTier::Seed).unwrap();
         assert!(after < initial);
+    }
+
+    // ── v1.2.0: Tile lifecycle tests ────────────────────────
+
+    #[test]
+    fn test_agent_starts_active() {
+        let mut lh = Lighthouse::new();
+        let agent = lh.orient("task", TaskType::Drafting);
+        assert_eq!(agent.lifecycle, TileLifecycle::Active);
+        assert_eq!(agent.lamport, 1);
+    }
+
+    #[test]
+    fn test_supersede_agent() {
+        let mut lh = Lighthouse::new();
+        let agent = lh.orient("task", TaskType::Drafting);
+        let result = lh.supersede_agent(&agent.room_id);
+        assert!(result);
+        let (active, sup, _) = lh.lifecycle_stats();
+        assert_eq!(active, 0);
+        assert_eq!(sup, 1);
+    }
+
+    #[test]
+    fn test_retract_agent() {
+        let mut lh = Lighthouse::new();
+        let agent = lh.orient("task", TaskType::Drafting);
+        let result = lh.retract_agent(&agent.room_id, "constraint violation");
+        assert!(result);
+        let (_, _, ret) = lh.lifecycle_stats();
+        assert_eq!(ret, 1);
+    }
+
+    #[test]
+    fn test_cannot_supersede_retracted() {
+        let mut lh = Lighthouse::new();
+        let agent = lh.orient("task", TaskType::Drafting);
+        lh.retract_agent(&agent.room_id, "bad");
+        let result = lh.supersede_agent(&agent.room_id);
+        assert!(!result, "Cannot supersede a retracted agent");
+    }
+
+    #[test]
+    fn test_active_lifecycle_agents_filters() {
+        let mut lh = Lighthouse::new();
+        let a1 = lh.orient("task1", TaskType::Drafting);
+        let a2 = lh.orient("task2", TaskType::Drafting);
+        lh.supersede_agent(&a1.room_id);
+        let active = lh.active_lifecycle_agents();
+        assert_eq!(active.len(), 1);
+        assert_eq!(active[0].room_id, a2.room_id);
+    }
+
+    #[test]
+    fn test_predict_gate_clean() {
+        let mut lh = Lighthouse::new();
+        let agent = lh.orient("task", TaskType::Drafting);
+        let result = lh.predict_gate(&agent.room_id, "clean output");
+        assert_eq!(result, GateResult::Approved);
+    }
+
+    #[test]
+    fn test_predict_gate_catches_credentials() {
+        let mut lh = Lighthouse::new();
+        let agent = lh.orient("task", TaskType::Drafting);
+        let result = lh.predict_gate(&agent.room_id, "api_key=secret123");
+        assert!(matches!(result, GateResult::Rejected(_)));
+    }
+
+    #[test]
+    fn test_lamport_clock_across_agents() {
+        let mut lh = Lighthouse::new();
+        let a1 = lh.orient("task1", TaskType::Drafting);
+        let a2 = lh.orient("task2", TaskType::Drafting);
+        assert!(a1.lamport < a2.lamport, "Second agent should have higher Lamport");
     }
 }
