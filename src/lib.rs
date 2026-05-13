@@ -63,6 +63,10 @@ pub mod simd;
 pub mod string;
 pub mod temporal;
 
+// C bridge backend (optional)
+#[cfg(feature = "c-bridge")]
+pub mod c_bridge;
+
 // WASM bindings
 #[cfg(feature = "wasm")]
 pub mod wasm;
