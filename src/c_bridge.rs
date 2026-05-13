@@ -42,54 +42,19 @@ impl CBridgeEisensteinConstraint {
     /// Snap a point to the nearest Eisenstein integer via the C bridge.
     ///
     /// This is the drop-in replacement for `EisensteinConstraint::snap()`.
-    /// The C code handles lattice snapping in `f32`; we cast and enrich the
-    /// result with the same Weyl-chamber classification and dodecet packing
-    /// used by the Rust implementation.
+    /// The C code handles lattice snapping in `f32`; we use the C result's
+    /// `snap_a`/`snap_b` fields (now exposed in the struct) to avoid
+    /// re-computing the 9-candidate search.
     pub fn snap(&self, x: f64, y: f64) -> SnapResult {
         let c_result = fleet_math_c::snap(x as f32, y as f32);
 
-        // The C bridge returns its own dodecet and chamber, but for exact
-        // parity with the Rust implementation we re-derive the snap point
-        // and re-classify using the same algorithms.
-        // If you want the raw C results, use `snap_raw()`.
-
-        // Re-derive the snap point from the C result's error and the input
-        // by performing the same 9-candidate search in f32, then using
-        // the C result's chamber classification for consistency.
-        let a_f = (x as f32) - (y as f32) * (OMEGA_RE as f32) / (OMEGA_IM as f32);
-        let b_f = (y as f32) / (OMEGA_IM as f32);
-
-        let a0 = a_f.round() as i32;
-        let b0 = b_f.round() as i32;
-
-        let mut best_a = a0;
-        let mut best_b = b0;
-        let mut best_err = f32::MAX;
-
-        for da in -1..=1i32 {
-            for db in -1..=1i32 {
-                let ca = a0 + da;
-                let cb = b0 + db;
-                let cx = ca as f32 + cb as f32 * (OMEGA_RE as f32);
-                let cy = cb as f32 * (OMEGA_IM as f32);
-                let dx = (x as f32) - cx;
-                let dy = (y as f32) - cy;
-                let err = (dx * dx + dy * dy).sqrt();
-                if err < best_err {
-                    best_a = ca;
-                    best_b = cb;
-                    best_err = err;
-                }
-            }
-        }
-
-        let best_err_f64 = best_err as f64;
+        // Use the C result's snap_a/snap_b directly — no re-derivation needed.
+        let best_a = c_result.snap_a;
+        let best_b = c_result.snap_b;
+        let best_err_f64 = c_result.error as f64;
         let chamber = c_result.chamber;
-        let parity = if EVEN_CHAMBERS.contains(&(chamber as usize)) {
-            1
-        } else {
-            -1
-        };
+
+        let parity = if EVEN_CHAMBERS.contains(&(chamber as usize)) { 1 } else { -1 };
 
         // Quantize error to 16 levels
         let err_norm = (best_err_f64 / COVERING_RADIUS).min(1.0);
@@ -132,40 +97,17 @@ impl CBridgeEisensteinConstraint {
     }
 
     /// Batch snap via C bridge — processes interleaved (x, y) pairs.
-    /// Returns SnapResults compatible with the Rust implementation.
+    /// Uses C result's snap_a/snap_b directly — no re-derivation.
     pub fn batch_snap(&self, points: &[(f64, f64)]) -> Vec<SnapResult> {
         let flat: Vec<f32> = points.iter().flat_map(|&(x, y)| [x as f32, y as f32]).collect();
         let raw = fleet_math_c::batch_snap(&flat);
         raw.into_iter()
             .enumerate()
             .map(|(i, r)| {
-                let x = points[i].0;
-                let y = points[i].1;
-                // Re-derive snap point for full SnapResult compatibility
-                let a_f = (x as f32) - (y as f32) * (OMEGA_RE as f32) / (OMEGA_IM as f32);
-                let b_f = (y as f32) / (OMEGA_IM as f32);
-                let a0 = a_f.round() as i32;
-                let b0 = b_f.round() as i32;
-                let mut best_a = a0;
-                let mut best_b = b0;
-                let mut best_err = f32::MAX;
-                for da in -1..=1i32 {
-                    for db in -1..=1i32 {
-                        let ca = a0 + da;
-                        let cb = b0 + db;
-                        let cx = ca as f32 + cb as f32 * (OMEGA_RE as f32);
-                        let cy = cb as f32 * (OMEGA_IM as f32);
-                        let dx = (x as f32) - cx;
-                        let dy = (y as f32) - cy;
-                        let err = (dx * dx + dy * dy).sqrt();
-                        if err < best_err {
-                            best_a = ca;
-                            best_b = cb;
-                            best_err = err;
-                        }
-                    }
-                }
-                let best_err_f64 = best_err as f64;
+                let (x, y) = points[i];
+                let best_a = r.snap_a;
+                let best_b = r.snap_b;
+                let best_err_f64 = r.error as f64;
                 let chamber = r.chamber;
                 let parity = if EVEN_CHAMBERS.contains(&(chamber as usize)) { 1 } else { -1 };
                 let err_norm = (best_err_f64 / COVERING_RADIUS).min(1.0);
